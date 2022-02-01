@@ -20,13 +20,16 @@ In home director create file called update-skills.sh
     echo "----Installing joi-skill-photo----"
     ./mycroft-msm install https://github.com/TySeddon/joi-skill-photo.git
 
-Make script executable
-    chmod +x update-skills.sh
+Make script executable and writeable
+    sudo chmod a+xw update-skills.sh
 
 ## One-Time Raspberry Pi setup
     cd ~/mycroft-core        
     source venv-activate.sh  
     pip install munch
+    pip install google-api-python-client
+    pip install google-auth-oauthlib
+    pip install google-auth-httplib2
 
 ## Mycroft Terminology
 

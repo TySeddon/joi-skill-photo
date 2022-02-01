@@ -11,8 +11,8 @@ import uuid
 import urllib.parse
 import os
 
-from google_photo import GooglePhoto
-from slideshow import Slideshow, JOI_SERVER_URL
+from .google_photo import GooglePhoto
+from .slideshow import Slideshow, JOI_SERVER_URL
 
 class JoiPhotoSkill(MycroftSkill):
     def __init__(self):
