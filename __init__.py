@@ -117,7 +117,7 @@ class JoiPhotoSkill(MycroftSkill):
         if self.photo:
             if self.stopped: return False
             if pauseFirst:
-                sleep(5)
+                sleep(1)
             if self.stopped: return False
             self.log.info("Starting photo %s" % (self.photo.filename))
             self.photo_intro(self.photo)
@@ -129,7 +129,7 @@ class JoiPhotoSkill(MycroftSkill):
             return False
 
     def is_photo_done(self):
-        if self.play_state.tick_count > 20:
+        if self.play_state.tick_count > 5:
             return True
         else:
             return False
