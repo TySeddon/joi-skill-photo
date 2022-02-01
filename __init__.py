@@ -82,7 +82,8 @@ class JoiPhotoSkill(MycroftSkill):
     def session_end(self):
         self.log.info("session_end")
         if self.stopped: return 
-        self.speak_dialog(key="Session_End")
+        self.speak_dialog(key="Session_End",
+                          data={"resident_name": self.resident_name})
         sleep(5)
         self.slideshow.end_slideshow()
         self.close_browser()
@@ -91,14 +92,14 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("photo_intro")
         if self.stopped: return 
         self.speak_dialog(key="Photo_Intro",
-                          data={},
+                          data={"resident_name": self.resident_name},
                           wait=True)
 
     def photo_followup(self, photo):
         self.log.info("photo_followup")
         if self.stopped: return 
         self.speak_dialog(key="Photo_Followup",
-                          data={},
+                          data={"resident_name": self.resident_name},
                           wait=True)
 
     ###########################################
@@ -155,7 +156,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("start_monitor")
         # Schedule a new one every second to monitor Slideshow play status
         self.schedule_repeating_event(
-            self.monitor_play_state, None, 2, name="WaitSlideshow"
+            self.monitor_play_state, None, 5, name="WaitSlideshow"
         )
         #self.add_event("recognizer_loop:record_begin", self.handle_listener_started)
 
