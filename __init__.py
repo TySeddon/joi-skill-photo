@@ -74,7 +74,7 @@ class JoiPhotoSkill(MycroftSkill):
 
     def open_browser(self):
         url = "%s/joi/slideshow?id=%s" % (JOI_SERVER_URL, self.slideshow.slideshow_id)
-        webbrowser.open(url=url)
+        webbrowser.open(url=url, autoraise=True)
 
     def close_browser(self):
         os.system("killall chromium-browser")
@@ -116,8 +116,8 @@ class JoiPhotoSkill(MycroftSkill):
         self.photo = self.get_next_photo()
         if self.photo:
             if self.stopped: return False
-            if pauseFirst:
-                sleep(1)
+            #if pauseFirst:
+            #    sleep(1)
             if self.stopped: return False
             self.log.info("Starting photo %s" % (self.photo.filename))
             self.photo_intro(self.photo)
@@ -154,7 +154,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("start_monitor")
         # Schedule a new one every second to monitor Slideshow play status
         self.schedule_repeating_event(
-            self.monitor_play_state, None, 5, name="WaitSlideshow"
+            self.monitor_play_state, None, 2, name="WaitSlideshow"
         )
         #self.add_event("recognizer_loop:record_begin", self.handle_listener_started)
 
@@ -167,6 +167,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.slideshow.tick_photo() # increment counter
         self.play_state = self.slideshow.get_playback_state()
         #self.log.info('%.2f %% - Playing=%s - %s - Vol=%.0f %%' % (self.play_state.progress_pct * 100, self.play_state.is_playing, self.photo.name, self.play_state.volume_pct))
+        self.log.info('Tick %i - Showing %s' % (self.play_state.tick_count, self.photo.name))
 
         if not self.play_state.is_playing:
             # if no longer playing, abandon polling after 60 seconds
