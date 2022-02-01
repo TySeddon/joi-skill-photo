@@ -24,6 +24,6 @@ play_state = client.get_playback_state()
 pprint(play_state)
 
 
-client.tick_photo()
+client._tick_photo()
 play_state = client.get_playback_state()
 pprint(play_state)

@@ -18,21 +18,12 @@ client = Slideshow()
 url = "%s/joi/slideshow?id=%s" % (JOI_SERVER_URL, client.slideshow_id)
 webbrowser.open(url=url)
 
-play_state = client.get_playback_state()
-pprint(play_state)
-
+#play_state = client.get_playback_state()
 for photo in mediaItems:
-
     client.show_photo(photo.id, photo.baseUrl)
-    play_state = client.get_playback_state()
-    pprint(play_state)
-
-    client.tick_photo()
-    client.tick_photo()
-    client.tick_photo()
-    play_state = client.get_playback_state()
-    pprint(play_state)
-
-    sleep(1)
+    for i in range(3):
+        play_state = client.get_playback_state()
+        print('Tick %i - Showing %s' % (play_state.tick_count, play_state.media_id))
+        sleep(1)
 
 client.end_slideshow()    

@@ -15,6 +15,7 @@ class Slideshow():
     def __init__(self):
         self.slideshow_id = uuid.uuid4()
         self.url = JOI_SERVER_URL + SLIDESHOW_API_PATH
+        self.tick_count = 0
         self.start()
 
     def start(self):
@@ -22,34 +23,38 @@ class Slideshow():
             'slideshow_id': str(self.slideshow_id),
             'media_id' : 'x',
             'media_url' : 'x',
-            'tick_count' : 0,
+            'tick_count' : self.tick_count,
             'ping_datetime': datetime.utcnow().isoformat()
         })
-        print(response.status_code)
 
     def show_photo(self, media_id, media_url):
+        self.tick_count = 0
         url = "%s%s/" % (self.url, self.slideshow_id)
         requests.put(url, json={
             'slideshow_id': str(self.slideshow_id),
             'media_id' : media_id,
             'media_url' : media_url,
-            'tick_count' : 0,
+            'tick_count' : self.tick_count,
             'ping_datetime': datetime.utcnow().isoformat()
         })
 
-    def tick_photo(self):
-        play_state = self.get_playback_state()
+    def _tick_photo(self):
+        self.tick_count += 1
         url = "%s%s/" % (self.url, self.slideshow_id)
-        requests.patch(url, json={
-            'ping_datetime': datetime.utcnow().isoformat(),
-            'tick_count' : play_state.tick_count + 1,
-        })
+        response = requests.patch(url, json={
+                        'ping_datetime': datetime.utcnow().isoformat(),
+                        'tick_count' : self.tick_count,
+                    })
+        obj = munchify(json.loads(response.content))
+        return obj
 
     def get_playback_state(self):
-        url = "%s%s/" % (self.url, self.slideshow_id)
-        response = requests.get(url)
-        obj = munchify(json.loads(response.content))
+        # url = "%s%s/" % (self.url, self.slideshow_id)
+        # response = requests.get(url)
+        # obj = munchify(json.loads(response.content))
+        obj = self._tick_photo()
         obj.is_playing = True
+        self.tick_count = obj.tick_count
         return obj
 
     def end_slideshow(self):
