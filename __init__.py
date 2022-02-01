@@ -167,7 +167,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.slideshow.tick_photo() # increment counter
         self.play_state = self.slideshow.get_playback_state()
         #self.log.info('%.2f %% - Playing=%s - %s - Vol=%.0f %%' % (self.play_state.progress_pct * 100, self.play_state.is_playing, self.photo.name, self.play_state.volume_pct))
-        self.log.info('Tick %i - Showing %s' % (self.play_state.tick_count, self.photo.name))
+        self.log.info('Tick %i - Showing %s' % (self.play_state.tick_count, self.photo.filename))
 
         if not self.play_state.is_playing:
             # if no longer playing, abandon polling after 60 seconds
