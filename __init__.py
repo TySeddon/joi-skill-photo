@@ -119,7 +119,7 @@ class JoiPhotoSkill(MycroftSkill):
             if pauseFirst:
                 sleep(5)
             if self.stopped: return False
-            self.log.info("Starting photo %s" % (self.photo.name))
+            self.log.info("Starting photo %s" % (self.photo.filename))
             self.photo_intro(self.photo)
             self.slideshow.show_photo(self.photo.id, self.photo.baseUrl)
             self.start_monitor()

@@ -31,6 +31,10 @@ Make script executable and writeable
     pip install google-auth-oauthlib
     pip install google-auth-httplib2
 
+    sudo nano client_secret.json
+        get content for this file from https://console.developers.google.com/
+
+
 ## Mycroft Terminology
 
 * **utterance** - An utterance is a phrase spoken by the User, after the User says the Wake Word. what's the weather like in Toronto? is an utterance.
