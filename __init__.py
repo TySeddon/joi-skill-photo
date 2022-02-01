@@ -42,6 +42,7 @@ class JoiPhotoSkill(MycroftSkill):
     def handle_play_photo_intent(self, message):
         """ This is an Adapt intent handler, it is triggered by a keyword."""
         self.log.info("handle_play_photo_intent")
+        self.log.info(os.getcwd())
         self.stopped = False
 
         self.resident_name = "Ruth"
