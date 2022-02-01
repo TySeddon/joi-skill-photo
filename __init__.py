@@ -12,7 +12,7 @@ import urllib.parse
 import os
 
 from google_photo import GooglePhoto
-from slideshow import Slideshow
+from slideshow import Slideshow, JOI_SERVER_URL
 
 class JoiPhotoSkill(MycroftSkill):
     def __init__(self):
@@ -72,7 +72,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.start_next_photo(False)
 
     def open_browser(self):
-        url = "%s/joi/slideshow?id=%s" % (globals.JOI_SERVER_URL, self.slideshow.slideshow_id)
+        url = "%s/joi/slideshow?id=%s" % (JOI_SERVER_URL, self.slideshow.slideshow_id)
         webbrowser.open(url=url)
 
     def close_browser(self):
@@ -89,20 +89,14 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("photo_intro")
         if self.stopped: return 
         self.speak_dialog(key="Photo_Intro",
-                          data={"artist_name": photo.artists[0].name,
-                                "song_name": photo.name,
-                                "resident_name": self.resident_name,
-                                },
+                          data={},
                           wait=True)
 
     def photo_followup(self, photo):
         self.log.info("photo_followup")
         if self.stopped: return 
         self.speak_dialog(key="Photo_Followup",
-                          data={"artist_name": photo.artists[0].name,
-                                "song_name": photo.name,
-                                "resident_name": self.resident_name,
-                                },
+                          data={},
                           wait=True)
 
     ###########################################
@@ -126,7 +120,7 @@ class JoiPhotoSkill(MycroftSkill):
             if self.stopped: return False
             self.log.info("Starting photo %s" % (self.photo.name))
             self.photo_intro(self.photo)
-            self.slideshow.show_photo(self.photo.uri)
+            self.slideshow.show_photo(self.photo.id, self.photo.baseUrl)
             self.start_monitor()
             return True
         else:
@@ -169,6 +163,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.not_playing_count = 0
 
     def monitor_play_state(self):
+        self.slideshow.tick_photo() # increment counter
         self.play_state = self.slideshow.get_playback_state()
         #self.log.info('%.2f %% - Playing=%s - %s - Vol=%.0f %%' % (self.play_state.progress_pct * 100, self.play_state.is_playing, self.photo.name, self.play_state.volume_pct))
 

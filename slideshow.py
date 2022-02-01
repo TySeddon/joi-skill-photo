@@ -5,8 +5,8 @@ import requests
 from munch import munchify
 import json
 
-JOI_SERVER_URL = 'http://127.0.0.1:8000'
-#JOI_SERVER_URL = 'https://joi-test-site.azurewebsites.net'
+#JOI_SERVER_URL = 'http://127.0.0.1:8000'
+JOI_SERVER_URL = 'https://joi-test-site.azurewebsites.net'
 
 SLIDESHOW_API_PATH = '/joi/v1/slideshows/'
 
@@ -41,6 +41,7 @@ class Slideshow():
         play_state = self.get_playback_state()
         url = "%s%s/" % (self.url, self.slideshow_id)
         requests.patch(url, json={
+            'ping_datetime': datetime.utcnow().isoformat(),
             'tick_count' : play_state.tick_count + 1,
         })
 
@@ -48,4 +49,15 @@ class Slideshow():
         url = "%s%s/" % (self.url, self.slideshow_id)
         response = requests.get(url)
         obj = munchify(json.loads(response.content))
+        obj.is_playing = True
         return obj
+
+    def end_slideshow(self):
+        url = "%s%s/" % (self.url, self.slideshow_id)
+        response = requests.delete(url)
+
+    def pause_playback(self):
+        pass
+
+    def resume_playback(self):
+        pass
