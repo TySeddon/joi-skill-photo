@@ -92,7 +92,10 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("photo_intro")
         if self.stopped: return 
         self.speak_dialog(key="Photo_Intro",
-                          data={"resident_name": self.resident_name},
+                          data={
+                              "resident_name": self.resident_name,
+                              "object_name": "pretty flowers"
+                            },
                           wait=True)
 
     def photo_followup(self, photo):
@@ -185,7 +188,7 @@ class JoiPhotoSkill(MycroftSkill):
             if not started:
                 self.session_end()
                 return
-                
+
         self.start_monitor()
 
     def handle_listener_started(self, message):
