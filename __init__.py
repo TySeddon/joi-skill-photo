@@ -154,7 +154,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("start_monitor")
         # Schedule a new one every second to monitor Slideshow play status
         self.schedule_repeating_event(
-            self.monitor_play_state, None, 1, name="WaitSlideshow"
+            self.monitor_play_state, None, 5, name="WaitSlideshow"
         )
         #self.add_event("recognizer_loop:record_begin", self.handle_listener_started)
 
@@ -176,6 +176,7 @@ class JoiPhotoSkill(MycroftSkill):
 
         if self.is_photo_done():
             # phot is done, so follow-up with user and start next photo
+            self.play_state.is_playing = False
             self.stop_monitor()
             self.photo_followup(self.photo)
 
@@ -232,6 +233,7 @@ class JoiPhotoSkill(MycroftSkill):
         """
         self.log.info("mycroft.stop")
         self.stopped = True
+        self.play_state.is_playing = False
 
         self.stop_monitor()
         self.stop_idle_check()
@@ -246,6 +248,8 @@ class JoiPhotoSkill(MycroftSkill):
         or that have initiated new processes.
         """
         self.log.info("shutdown")
+        self.stopped = True
+        self.play_state.is_playing = False
         self.stop_monitor()
         self.stop_idle_check()
 
