@@ -30,6 +30,7 @@ Make script executable and writeable
     pip install google-api-python-client
     pip install google-auth-oauthlib
     pip install google-auth-httplib2
+    pip install pyyaml
 
     sudo nano client_secret.json
         get content for this file from https://console.developers.google.com/

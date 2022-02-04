@@ -132,3 +132,5 @@ dmypy.json
 token.pickle
 client_secret.json
 
+# environment (dev vs production) config
+*.yaml
