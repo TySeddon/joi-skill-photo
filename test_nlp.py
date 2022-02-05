@@ -138,8 +138,83 @@ def answer_question_kb(question):
         )
     return [munchify({'question':o.questions[0],'short_answer':o.short_answer,'long_answer':o.answer,'confidence':o.confidence}) for o in output.answers]
 
-def compose_prompt(object_text):
-    entities = recognize_entities(client, [object_text])
+
+def compose_product_prompts(product_text, subcategory, confidence, custom_categories):
+    list = []
+    list.extend([
+        f"That is a nice looking {product_text}"
+    ])
+    if custom_categories.food and product_text != "food":
+        list.extend([
+            f"How do you make {product_text}?",
+            f"Do you like to eat {product_text}?",
+            f"What does {product_text} taste like?",
+        ])
+
+    return [f"{s} ({confidence})" for s in list]
+
+def compose_skill_prompts(skill_text, subcategory, confidence):
+    list = []
+    list.extend([
+        f"{skill_text} looks enjoyable",
+        f"How did you learn {skill_text}?",
+        f"Who taught you {skill_text}?",
+        f"Who do you like to {skill_text} with?",
+        f"Is {skill_text} difficult to learn?"
+    ])
+    return [f"{s} ({confidence})" for s in list]
+
+def compose_person_prompts(person_text, subcategory, confidence):
+    list = []
+    list.extend([
+        f"What else do you like to do with {person_text}?",
+        f"It must be fun to spend time with {person_text}"
+    ])
+    return [f"{s} ({confidence})" for s in list]
+    
+def compose_persontype_prompts(persontype_text, subcategory, confidence):
+    list = []
+    list.extend([
+        f"What else do you like to do with your {persontype_text}?",
+        f"It must be fun to spend time with your {persontype_text}"
+    ])
+    return [f"{s} ({confidence})" for s in list]
+
+def compose_location_prompts(location_text, subcategory, confidence):
+    list = []
+    if subcategory == "GPE":
+        list.extend([
+            f"What is it like in {location_text}?",
+            f"{location_text} looks like a nice place",
+            f"Do you like to go to {location_text}?"
+        ])
+    else:        
+        list.extend([
+            f"What is it like at the {location_text}?",
+            f"Do you like to go to the {location_text}?",
+            f"What kinds of things do you see at the {location_text}?",
+            f"What are your favorite things to do at the {location_text}?"
+        ])
+    return [f"{s} ({confidence})" for s in list]
+
+def compose_entity_promts(entities, custom_categories):
+    list = []
+    for entity in entities:
+        if entity.category=="Location":
+            list.extend(compose_location_prompts(entity.text, entity.subcategory, entity.confidence_score))
+        elif entity.category=="Person":
+            list.extend(compose_person_prompts(entity.text, entity.subcategory, entity.confidence_score))
+        elif entity.category=="PersonType":
+            list.extend(compose_persontype_prompts(entity.text, entity.subcategory, entity.confidence_score))
+        elif entity.category=="Product":
+            list.extend(compose_product_prompts(entity.text, entity.subcategory, entity.confidence_score, custom_categories))
+        elif entity.category=="Skill":
+            list.extend(compose_skill_prompts(entity.text, entity.subcategory, entity.confidence_score))
+        else:
+            list.extend([f"Not sure what to say about {entity.category}"])
+    return list
+
+def compose_prompts(object_text):
     # entities_text = [o.text for o in entities]
     # phrases = key_phrase_extraction_example(client, object_text)
     #answer_question_kb(' '.join(phrases))
@@ -148,12 +223,31 @@ def compose_prompt(object_text):
     list = []
     responses = answer_question_kb(object_text)
     for response in responses:
+        question = response.question
+        long_answer = response.long_answer
+        short_answer = response.short_answer
         list.extend([
-            "Is this %s?" % response.question,
-            "Can you tell me more about %s %s?" % (response.question, response.long_answer),       
-            "%s is %s" % (response.question, response.long_answer),
-            "%s is %s" % (response.long_answer, response.question)
+            f"Is this {question}?",
+            #f"Can you tell me more about {question} {long_answer}?",       
+            #f"{question} is {long_answer}",
+            #f"{long_answer} is {question}"
         ])
+
+        question_entities = recognize_entities(client, [question])
+        answer_entities = recognize_entities(client, [long_answer])
+        custom_categories = munchify({
+            "food": "food" in [e.text for e in question_entities] or "food" in [e.text for e in answer_entities]
+        })
+
+        list.extend(compose_entity_promts(question_entities, custom_categories))
+        list.extend(compose_entity_promts(answer_entities, custom_categories))
+
+    object_entities = recognize_entities(client, [object_text])
+    custom_categories = munchify({
+        "food": "food" in [e.text for e in object_entities]
+    })
+    list.extend(compose_entity_promts(object_entities, custom_categories))
+
     return list        
 
     #Entity Category
@@ -164,8 +258,12 @@ def compose_prompt(object_text):
 # setup client
 client = authenticate_client()
 
-object_text = "garden, flower, daffodil, pretty"
-prompts = compose_prompt(object_text)
+#object_text = "garden, flower, daffodil, pretty"
+object_text = "ice cream, Susanna, beach, walk, Clearwater"
+#object_text = "pinnocle, Fred, Margaret"
+#object_text = "crochet blanket for grandchildren"
+object_text = "jello with fruit, party"
+prompts = compose_prompts(object_text)
 for p in prompts:
     print(p)
 quit()
