@@ -4,6 +4,7 @@
 # pip install azure-ai-textanalytics==5.2.0b1
 # pip install azure-ai-language-questionanswering
 
+from audioop import reverse
 from pprint import pprint
 from azure.ai.textanalytics import TextAnalyticsClient, ExtractSummaryAction
 from azure.core.credentials import AzureKeyCredential
@@ -12,6 +13,7 @@ from azure.ai.language.questionanswering import models as qna
 import re
 from munch import munchify
 import enviro
+from itertools import groupby
 
 ta_key = enviro.get_value("ta_key")
 ta_endpoint = enviro.get_value("ta_endpoint")
@@ -42,6 +44,7 @@ def recognize_entities(client, documents):
         return [entity for entity in result.entities]
     except Exception as err:
         print("Encountered exception. {}".format(err))
+        return []
 
 def print_key_phrases(key_phrases):
     print("\tKey Phrases:")
@@ -113,6 +116,18 @@ def clean_answer(question):
         result = replace_whole_word(m[2], m[1], result)
     return result
 
+def unique_entities(entities):
+    """Given a list of entities that contains duplicates, 
+    return the entity for each 'text' attribute of the highest confidence_score """
+    result = []
+    for key,items in groupby(entities, key=lambda o: o.text):
+        first_obj = next(iter(sorted(items,key=lambda o: o.confidence_score, reverse=True)),None)
+        result.append(first_obj)
+    return result
+
+def get_quoted(text):
+    return re.findall('"([^"]*)"', text)
+
 ###########################
 
 def print_kb_response(original_question, kb_response):
@@ -136,19 +151,25 @@ def answer_question_kb(question):
             confidence_threshold=0.3,
             short_answer_options  = qna.ShortAnswerOptions(enable = True,confidence_threshold=0.3,top=3)
         )
-    return [munchify({'question':o.questions[0],'short_answer':o.short_answer,'long_answer':o.answer,'confidence':o.confidence}) for o in output.answers]
+    return [munchify(
+        {'question':(o.questions[0] if o.questions else ''),
+            'short_answer':o.short_answer,
+            'long_answer':o.answer,
+            'confidence':o.confidence
+        }) for o in output.answers]
 
+generic_food_names = ['food', 'fruit', 'meat', 'vegetable']
 
-def compose_product_prompts(product_text, subcategory, confidence, custom_categories):
+def compose_product_prompts(product_text, subcategory, confidence):
     list = []
     list.extend([
         f"That is a nice looking {product_text}"
     ])
-    if custom_categories.food and product_text != "food":
+    if subcategory=="food" and product_text not in generic_food_names:
         list.extend([
             f"How do you make {product_text}?",
-            f"Do you like to eat {product_text}?",
-            f"What does {product_text} taste like?",
+            f"Who taught you to make {product_text}?",
+            f"When do you typicallly eat {product_text}?",
         ])
 
     return [f"{s} ({confidence})" for s in list]
@@ -180,6 +201,14 @@ def compose_persontype_prompts(persontype_text, subcategory, confidence):
     ])
     return [f"{s} ({confidence})" for s in list]
 
+def compose_event_prompts(event_text, subcategory, confidence):
+    list = []
+    list.extend([
+        f"What does your family do at a {event_text}?",
+        f"Can you tell me a story about one memorable {event_text}?"
+    ])
+    return [f"{s} ({confidence})" for s in list]
+
 def compose_location_prompts(location_text, subcategory, confidence):
     list = []
     if subcategory == "GPE":
@@ -197,7 +226,7 @@ def compose_location_prompts(location_text, subcategory, confidence):
         ])
     return [f"{s} ({confidence})" for s in list]
 
-def compose_entity_promts(entities, custom_categories):
+def compose_entity_promts(entities):
     list = []
     for entity in entities:
         if entity.category=="Location":
@@ -207,46 +236,76 @@ def compose_entity_promts(entities, custom_categories):
         elif entity.category=="PersonType":
             list.extend(compose_persontype_prompts(entity.text, entity.subcategory, entity.confidence_score))
         elif entity.category=="Product":
-            list.extend(compose_product_prompts(entity.text, entity.subcategory, entity.confidence_score, custom_categories))
+            list.extend(compose_product_prompts(entity.text, entity.subcategory, entity.confidence_score))
         elif entity.category=="Skill":
             list.extend(compose_skill_prompts(entity.text, entity.subcategory, entity.confidence_score))
+        elif entity.category=="Event":
+            list.extend(compose_event_prompts(entity.text, entity.subcategory, entity.confidence_score))
         else:
             list.extend([f"Not sure what to say about {entity.category}"])
     return list
 
+def source_entities(entities, source):
+    for o in entities:
+        o.source = source
+
 def compose_prompts(object_text):
-    # entities_text = [o.text for o in entities]
     # phrases = key_phrase_extraction_example(client, object_text)
-    #answer_question_kb(' '.join(phrases))
-    #answer_question_kb(' '.join(entities_text))
-
     list = []
-    responses = answer_question_kb(object_text)
-    for response in responses:
-        question = response.question
-        long_answer = response.long_answer
-        short_answer = response.short_answer
+    entities = []
+
+    # get text between quotes
+    quotes = get_quoted(object_text)
+    for q in quotes:
         list.extend([
-            f"Is this {question}?",
-            #f"Can you tell me more about {question} {long_answer}?",       
-            #f"{question} is {long_answer}",
-            #f"{long_answer} is {question}"
+            f"{q}"
         ])
+        # remove quoted text from object_text
+        object_text = object_text.replace(f'"{q}"', '')
 
-        question_entities = recognize_entities(client, [question])
-        answer_entities = recognize_entities(client, [long_answer])
-        custom_categories = munchify({
-            "food": "food" in [e.text for e in question_entities] or "food" in [e.text for e in answer_entities]
-        })
+    if object_text != "":
+        # query the Knowledge Base
+        responses = answer_question_kb(object_text)
+        for response in responses:
+            question = response.question
+            long_answer = response.long_answer
+            short_answer = response.short_answer
 
-        list.extend(compose_entity_promts(question_entities, custom_categories))
-        list.extend(compose_entity_promts(answer_entities, custom_categories))
+            print(f"{question}, {long_answer}, {short_answer}, {response.confidence}")
 
-    object_entities = recognize_entities(client, [object_text])
-    custom_categories = munchify({
-        "food": "food" in [e.text for e in object_entities]
-    })
-    list.extend(compose_entity_promts(object_entities, custom_categories))
+            if question:
+                list.extend([
+                    f"Is this {question}?",
+                    f"This looks like {question}",
+                    #f"Can you tell me more about {question} {long_answer}?",       
+                    #f"{question} is {long_answer}",
+                    f"Is {long_answer} {question}?"
+                ])
+                response.question_entities = recognize_entities(client, [question])
+            else:
+                response.question_entities = []
+            source_entities(response.question_entities, "question")
+            entities.extend(response.question_entities)
+
+            response.answer_entities = recognize_entities(client, [long_answer])
+            source_entities(response.answer_entities, "answer")
+            entities.extend(response.answer_entities)
+
+            if "food" in [o.text for o in response.question_entities]:
+                for o in response.answer_entities:
+                    if o.category=="Product":
+                        o.subcategory="food"
+
+        object_entities = recognize_entities(client, [object_text])
+        source_entities(object_entities, "object")
+        entities.extend(object_entities)
+        ue = unique_entities(entities)
+        list.extend(compose_entity_promts(ue))
+
+        print('------------------------------------------')
+        for o in entities:
+            print(f"{o.source}, {o.text}, {o.category}, {o.subcategory}, {o.confidence_score}")
+        print('------------------------------------------')
 
     return list        
 
@@ -262,7 +321,10 @@ client = authenticate_client()
 object_text = "ice cream, Susanna, beach, walk, Clearwater"
 #object_text = "pinnocle, Fred, Margaret"
 #object_text = "crochet blanket for grandchildren"
-object_text = "jello with fruit, party"
+#object_text = "'Jello with fruit', party"
+object_text = "'Jello with fruit', birthday party"
+#object_text = " \"Say this exactly\", beach, walk "
+
 prompts = compose_prompts(object_text)
 for p in prompts:
     print(p)
