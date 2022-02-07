@@ -32,10 +32,11 @@ def authenticate_client():
     return text_analytics_client
 
 def print_entities(entities):
-    print("Named Entities:\n")
-    for entity in entities:
-        print("\tText: \t", entity.text, "\tCategory: \t", entity.category, "\tSubCategory: \t", entity.subcategory,
-                "\n\tConfidence Score: \t", round(entity.confidence_score, 2), "\tLength: \t", entity.length, "\tOffset: \t", entity.offset, "\n")
+    for o in entities:
+        print('------------------------------------------')
+        for o in entities:
+            print(f"{o.source}, {o.text}, {o.category}, {o.subcategory}, {o.confidence_score}")
+        print('------------------------------------------')
 
 # Example function for recognizing entities from text
 def recognize_entities(client, documents):
@@ -47,9 +48,8 @@ def recognize_entities(client, documents):
         return []
 
 def print_key_phrases(key_phrases):
-    print("\tKey Phrases:")
     for phrase in key_phrases:
-        print("\t\t", phrase)
+        print(f"{phrase}")
 
 def extract_key_phrases(client, documents):
     try:
@@ -66,8 +66,7 @@ def extract_key_phrases(client, documents):
 ########################
 
 
-# Example method for summarizing text
-def sample_extractive_summarization(client, document):
+def extract_summary(client, document):
 
     poller = client.begin_analyze_actions(
         document,
@@ -91,6 +90,7 @@ def sample_extractive_summarization(client, document):
 
 ###################
 
+""" 
 def replace_whole_word(search, replace, text):
     return re.sub(r"\b%s\b" % search , replace, text, flags =re.IGNORECASE)
 
@@ -114,7 +114,9 @@ def clean_answer(question):
     result = question
     for m in resident_name_mapping:
         result = replace_whole_word(m[2], m[1], result)
-    return result
+    return result 
+
+"""
 
 def unique_entities(entities):
     """Given a list of entities that contains duplicates, 
@@ -154,9 +156,9 @@ def answer_question_kb(question):
             'confidence':o.confidence
         }) for o in output.answers]
 
-generic_food_names = ['food', 'fruit', 'meat', 'vegetable']
 
 def compose_product_prompts(product_text, subcategory, confidence):
+    generic_food_names = ['food', 'fruit', 'meat', 'vegetable']
     list = []
     list.extend([
         f"That is a nice looking {product_text}"
@@ -241,7 +243,7 @@ def compose_entity_promts(entities):
             list.extend([f"Not sure what to say about {entity.category}"])
     return list
 
-def source_entities(entities, source):
+def set_source(entities, source):
     for o in entities:
         o.source = source
 
@@ -280,11 +282,11 @@ def compose_prompts(object_text):
             else:
                 response.question_entities = []
 
-            source_entities(response.question_entities, "question")
+            set_source(response.question_entities, "question")
             entities.extend(response.question_entities)
 
             response.answer_entities = recognize_entities(client, [long_answer])
-            source_entities(response.answer_entities, "answer")
+            set_source(response.answer_entities, "answer")
             entities.extend(response.answer_entities)
 
             if "food" in [o.text for o in response.question_entities]:
@@ -293,7 +295,7 @@ def compose_prompts(object_text):
                         o.subcategory="food"
 
         object_entities = recognize_entities(client, [object_text])
-        source_entities(object_entities, "object")
+        set_source(object_entities, "object")
         entities.extend(object_entities)
         ue = unique_entities(entities)
         list.extend(compose_entity_promts(ue))
