@@ -130,14 +130,10 @@ def get_quoted(text):
 
 ###########################
 
-def print_kb_response(original_question, kb_response):
+def print_kb_responses(responses):
     print("---------------------------------")
-    print("Q: %s" % original_question)
-    for answer in kb_response.answers:    
-        print("Q: %s" % answer.questions[0])
-        if answer.short_answer is not None:
-            print("A (%.2f%%): %s" % (answer.short_answer.confidence * 100, answer.short_answer.text))    
-        print("A (%.2f%%): %s" % (answer.confidence * 100, answer.answer))
+    for r in responses:
+        print(f"{r.question}, {r.long_answer}, {r.short_answer.text if r.short_answer else None}, {r.confidence}")
 
 def answer_question_kb(question):
     credential = AzureKeyCredential(qna_key)
@@ -263,27 +259,27 @@ def compose_prompts(object_text):
         # remove quoted text from object_text
         object_text = object_text.replace(f'"{q}"', '')
 
-    if object_text != "":
+    if object_text:
         # query the Knowledge Base
         responses = answer_question_kb(object_text)
+        print_kb_responses(responses)
         for response in responses:
             question = response.question
             long_answer = response.long_answer
-            short_answer = response.short_answer
-
-            print(f"{question}, {long_answer}, {short_answer}, {response.confidence}")
+            short_answer = response.short_answer.text if response.short_answer else None
 
             if question:
                 list.extend([
                     f"Is this {question}?",
-                    f"This looks like {question}",
+                    #f"This looks like {question}",
                     #f"Can you tell me more about {question} {long_answer}?",       
                     #f"{question} is {long_answer}",
-                    f"Is {long_answer} {question}?"
+                    #f"Is {long_answer} {question}?"
                 ])
                 response.question_entities = recognize_entities(client, [question])
             else:
                 response.question_entities = []
+
             source_entities(response.question_entities, "question")
             entities.extend(response.question_entities)
 
@@ -319,11 +315,16 @@ client = authenticate_client()
 
 #object_text = "garden, flower, daffodil, pretty"
 object_text = "ice cream, Susanna, beach, walk, Clearwater"
-#object_text = "pinnocle, Fred, Margaret"
-#object_text = "crochet blanket for grandchildren"
+object_text = "playing pinnocle with Fred and Margaret"
+object_text = "crochet blanket for grandchildren"
 #object_text = "'Jello with fruit', party"
-object_text = "'Jello with fruit', birthday party"
+#object_text = "'Jello with fruit', birthday party"
 #object_text = " \"Say this exactly\", beach, walk "
+
+q = "crocheted blankets"
+responses = answer_question_kb(q)
+print_kb_responses(responses)
+quit()
 
 prompts = compose_prompts(object_text)
 for p in prompts:
@@ -336,7 +337,7 @@ answer_question_kb("Who is Susanna?")
 answer_question_kb("What is my daughter's name?")
 answer_question_kb("How old is my daughter?")
 answer_question_kb("sense of pride")
-answer_question_kb("most proud")
+
 quit()
 
 entities = recognize_entities(client, object_text)
