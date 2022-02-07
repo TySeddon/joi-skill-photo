@@ -6,7 +6,7 @@
 from nlp import NLP
 from dialog import Dialog
 import enviro
-
+from munch import munchify
 
 
 kb_project = 'joi-ruth'
@@ -27,7 +27,7 @@ NLP.print_kb_responses(responses)
 dialog = Dialog(nlp, 'Ruth')
 prompts = dialog.compose_prompts(object_text)
 for p in prompts:
-    print(p)
+    print(f"{p.prompt}, ({p.confidence}), {p.source}")
 quit()
 
 
