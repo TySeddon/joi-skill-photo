@@ -86,10 +86,17 @@ class Dialog():
         event_text = entity.text
         subcategory = entity.subcategory
         list = []
-        list.extend([
-            f"What does your family do at {event_text}?",
-            f"Can you tell me a story about one memorable {event_text}?"
-        ])
+        if subcategory=="DateRange":
+            event_text = event_text.replace('the ', '')
+            list.extend([
+                f"What does your family do in {event_text}?",
+                f"Can you tell me a story about one memorable {event_text}?"
+            ])
+        else:
+            list.extend([
+                f"What does your family do at {event_text}?",
+                f"Can you tell me a story about one memorable {event_text}?"
+            ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
     def compose_location_prompts(self, entity):
@@ -219,3 +226,21 @@ class Dialog():
             #NLP.print_entities(entities)
 
         return list        
+
+
+
+
+# active listening phrases
+# tell me more about…
+# What is it like in… <place>
+# Wow, you must feel really proud about <pride>
+# That must have felt good to <hobby> or <pride>
+# What was it like to grow up in <place>
+# <place> looks really nice
+# It must have been fun to play <game> with <who>
+# Do you like <treat>
+# Who else in your family likes <treat>
+# Who would you share <treat> with
+# How did you learn how to make <food>
+# Is it hard to make <food>
+# What does <food> taste like?

@@ -11,15 +11,15 @@ nlp = NLP(kb_project)
 
 #object_text = "garden, flower, daffodil, pretty"
 object_text = "ice cream, Susanna, beach, walk, Clearwater"
-object_text = "playing pinnocle with Fred and Margaret"
-object_text = "crochet blanket for grandchildren"
+object_text = "playing pinochle with Fred and Margaret"
+#object_text = "crochet blanket for grandchildren"
 #object_text = "'Jello with fruit', party"
 #object_text = "'Jello with fruit', birthday party"
 #object_text = " \"Say this exactly\", beach, walk "
 
-q = "crocheted blankets"
-responses = nlp.answer_question_kb(q)
-NLP.print_kb_responses(responses)
+# q = "crocheted blankets"
+# responses = nlp.answer_question_kb(q)
+# NLP.print_kb_responses(responses)
 
 dialog = Dialog(nlp, 'Ruth')
 prompts = dialog.compose_prompts(object_text)

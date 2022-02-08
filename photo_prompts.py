@@ -46,9 +46,8 @@ with open(report_file_name, 'w') as f:
     f.write("<body>")
     for o in mediaItems:
         if o.description:
-            print('.', end='')
             prompts = dialog.compose_prompts(o.description)
-            f.write("<div style='margin:20px; clear:both; border-style: solid; padding:20px;'>")
+            f.write("<div style='margin:20px; clear:both; border-style: solid; padding:20px;page-break-after:always;'>")
             
             f.write("<div style='display:inline-block; margin-right:10px;'>")
             f.write(f"<img src='{o.baseUrl}' style='max-width:200px;'/>")

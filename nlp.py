@@ -114,7 +114,8 @@ class NLP():
         """Given a list of entities that contains duplicates, 
         return the entity for each 'text' attribute of the highest confidence_score """
         result = []
-        for key,items in groupby(entities, key=lambda o: o.text):
+        sorted_entities = sorted(entities, key=lambda o: o.text)
+        for key,items in groupby(sorted_entities, key=lambda o: o.text):
             first_obj = next(iter(sorted(items,key=lambda o: o.confidence_score, reverse=True)),None)
             result.append(first_obj)
         return result
@@ -152,3 +153,7 @@ class NLP():
                 'long_answer':o.answer,
                 'confidence':o.confidence
             }) for o in output.answers]
+
+
+# Language Studio
+# https://language.cognitive.azure.com/home

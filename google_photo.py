@@ -45,7 +45,7 @@ class GooglePhoto():
 
     def get_media_items(self, album_id):
         header = self._build_header()
-        response = requests.post(MEDIAITEMS_URL+":search", headers=header, data=str({'albumId':album_id}))
+        response = requests.post(MEDIAITEMS_URL+":search", headers=header, data=str({'albumId':album_id,'pageSize':100}))
         mediaItems = munchify(json.loads(response.content)).mediaItems
 
         # clean up media items
