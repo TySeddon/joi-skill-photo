@@ -47,4 +47,10 @@ class GooglePhoto():
         header = self._build_header()
         response = requests.post(MEDIAITEMS_URL+":search", headers=header, data=str({'albumId':album_id}))
         mediaItems = munchify(json.loads(response.content)).mediaItems
+
+        # clean up media items
+        for o in mediaItems:
+            if not hasattr(o, 'description'):
+                o.description = None
+
         return mediaItems    

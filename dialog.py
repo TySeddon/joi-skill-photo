@@ -87,7 +87,7 @@ class Dialog():
         subcategory = entity.subcategory
         list = []
         list.extend([
-            f"What does your family do at a {event_text}?",
+            f"What does your family do at {event_text}?",
             f"Can you tell me a story about one memorable {event_text}?"
         ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
@@ -97,7 +97,7 @@ class Dialog():
         subcategory = entity.subcategory
 
         list = []
-        if subcategory == "GPE":
+        if subcategory=="GPE" or subcategory=="Geographical":
             list.extend([
                 f"What is it like in {location_text}?",
                 f"{location_text} looks like a nice place",
@@ -109,6 +109,16 @@ class Dialog():
                 f"Do you like to go to the {location_text}?",
                 f"What kinds of things do you see at the {location_text}?",
                 f"What are your favorite things to do at the {location_text}?"
+            ])
+        return [self.wrap_entity_prompt(s,entity) for s in list]
+
+    def compose_unknown_prompts(self, entity):
+        text = entity.text
+        category = entity.category
+
+        list = []
+        list.extend([
+                f"Not sure what to say about {category} {text}"
             ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
@@ -129,8 +139,10 @@ class Dialog():
                 list.extend(self.compose_skill_prompts(entity))
             elif entity.category=="Event":
                 list.extend(self.compose_event_prompts(entity))
+            elif entity.category=="DateTime":
+                list.extend(self.compose_event_prompts(entity))
             else:
-                list.extend([f"Not sure what to say about {entity.category}"])
+                list.extend(self.compose_unknown_prompts(entity))
         return list
 
     def compose_quoted_prompts(self, quoted, confidence):
@@ -153,7 +165,7 @@ class Dialog():
             #f"{question} is {long_answer}",
             #f"Is {long_answer} {question}?"
         ])
-        return [self.wrap_nonentity_prompt(s,question, response.confidence, "kb") for s in list]
+        return [self.wrap_nonentity_prompt(s,question, response.confidence, "kb_response") for s in list]
 
     def set_source(self, entities, source):
         for o in entities:
@@ -174,7 +186,7 @@ class Dialog():
         if object_text:
             # query the Knowledge Base
             responses = self.nlp.answer_question_kb(object_text)
-            NLP.print_kb_responses(responses)
+            #NLP.print_kb_responses(responses)
             for response in responses:
                 question = response.question
                 long_answer = response.long_answer
@@ -186,11 +198,11 @@ class Dialog():
                 else:
                     response.question_entities = []
 
-                self.set_source(response.question_entities, "question")
+                self.set_source(response.question_entities, "kb_question")
                 entities.extend(response.question_entities)
 
                 response.answer_entities = self.nlp.recognize_entities([long_answer])
-                self.set_source(response.answer_entities, "answer")
+                self.set_source(response.answer_entities, "kb_answer")
                 entities.extend(response.answer_entities)
 
                 if "food" in [o.text for o in response.question_entities]:
@@ -204,6 +216,6 @@ class Dialog():
             ue = NLP.unique_entities(entities)
             list.extend(self.compose_entity_prompts(ue))
 
-            NLP.print_entities(entities)
+            #NLP.print_entities(entities)
 
         return list        

@@ -5,9 +5,6 @@
 
 from nlp import NLP
 from dialog import Dialog
-import enviro
-from munch import munchify
-
 
 kb_project = 'joi-ruth'
 nlp = NLP(kb_project)
