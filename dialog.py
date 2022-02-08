@@ -36,14 +36,15 @@ class Dialog():
         subcategory = entity.subcategory
         
         list = []
-        list.extend([
-            f"That is a nice looking {product_text}"
-        ])
         if subcategory=="food" and product_text not in Dialog.GENERIC_FOOD_NAMES:
             list.extend([
                 f"How do you make {product_text}?",
                 f"Who taught you to make {product_text}?",
                 f"When do you typicallly eat {product_text}?",
+            ])
+        else:
+            list.extend([
+                f"That is a nice looking {product_text}"
             ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
@@ -110,6 +111,11 @@ class Dialog():
                 f"{location_text} looks like a nice place",
                 f"Do you like to go to {location_text}?"
             ])
+        elif subcategory=="Structural":
+            list.extend([
+                f"Can you tell me more about this {location_text}?",
+                f"What a nice looking {location_text}",
+            ])
         else:        
             list.extend([
                 f"What is it like at the {location_text}?",
@@ -129,11 +135,25 @@ class Dialog():
             ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
+    def compose_pride_prompts(self, entity):
+        pride_text = entity.text
+        list = []
+        list.extend([
+            f"This must make you feel proud",
+            f"{pride_text} must make you feel proud"
+        ])
+        return [self.wrap_entity_prompt(s,entity) for s in list]
+
     def compose_entity_prompts(self, entities):
         #Entity Category
         # "Person", "Location", "Organization", "Quantity", "DateTime", "personType", "Event", "Product", "Skill"
         list = []
         for entity in entities:
+            # custom prompts
+            if hasattr(entity, 'sense_of_pride') and entity.sense_of_pride:
+                list.extend(self.compose_pride_prompts(entity))
+
+            # category prompts    
             if entity.category=="Location":
                 list.extend(self.compose_location_prompts(entity))
             elif entity.category=="Person":
@@ -178,6 +198,21 @@ class Dialog():
         for o in entities:
             o.source = source
 
+    def identify_custom_attributes_kb(self, kb_response):
+        for o in kb_response.answer_entities:
+            o.sense_of_pride=NLP.contains_whole_word("pride", kb_response.question)
+
+        if "food" in [o.text for o in kb_response.question_entities]:
+            for o in kb_response.answer_entities:
+                if o.category=="Product":
+                    o.subcategory="food"
+
+    def identify_custom_attributes_entities(self, object_entities):
+        if "food" in [o.text for o in object_entities]:
+            for o in object_entities:
+                if o.category=="Product" and o.text != "food":
+                    o.subcategory="food"
+
     def compose_prompts(self, object_text):
         # phrases = key_phrase_extraction_example(client, object_text)
         list = []
@@ -212,14 +247,13 @@ class Dialog():
                 self.set_source(response.answer_entities, "kb_answer")
                 entities.extend(response.answer_entities)
 
-                if "food" in [o.text for o in response.question_entities]:
-                    for o in response.answer_entities:
-                        if o.category=="Product":
-                            o.subcategory="food"
+                self.identify_custom_attributes_kb(response)
 
             object_entities = self.nlp.recognize_entities([object_text])
             self.set_source(object_entities, "object")
+            self.identify_custom_attributes_entities(object_entities)
             entities.extend(object_entities)
+
             ue = NLP.unique_entities(entities)
             list.extend(self.compose_entity_prompts(ue))
 

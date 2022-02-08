@@ -55,7 +55,7 @@ with open(report_file_name, 'w') as f:
             f.write("</div>")
 
             f.write("<table style='display:inline-block; vertical-align:top;max-width:600px;'>")
-            f.write("<tr> <th>Conversation Prompt</th> <th>Entity</th>  <th>Category</th>  <th>SubCat</th>  <th>Confidence</th> <th>Source</th> </tr>")
+            f.write("<tr> <th>Conversation Prompt</th> <th>Entity</th>  <th>Category</th>  <th>SubCat</th>  <th>Conf</th> <th>Source</th> </tr>")
             for p in prompts:
                 f.write("<tr>")
                 f.write(f"<td>{p.prompt}</td>")

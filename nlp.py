@@ -82,10 +82,13 @@ class NLP():
 
     ###################
 
-    """ 
+    def contains_whole_word(search, text):
+        return any(re.findall(r"\b%s\b" % search, text, flags =re.IGNORECASE))
+
     def replace_whole_word(search, replace, text):
         return re.sub(r"\b%s\b" % search , replace, text, flags =re.IGNORECASE)
 
+    """ 
     resident_name = "Ruth"
     resident_name_possessive = resident_name + "'s"
     resident_name_mapping = [
