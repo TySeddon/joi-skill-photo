@@ -83,7 +83,7 @@ class NLP():
     ###################
 
     def contains_whole_word(search, text):
-        return any(re.findall(r"\b%s\b" % search, text, flags =re.IGNORECASE))
+        return bool(re.findall(r"\b%s\b" % search, text, flags =re.IGNORECASE))
 
     def replace_whole_word(search, replace, text):
         return re.sub(r"\b%s\b" % search , replace, text, flags =re.IGNORECASE)
