@@ -79,7 +79,10 @@ try:
         motion_events.append(current_event)
         if last_event and last_event.Event == "MotionStart" and current_event.Event == "MotionStop":
             motion_event_pairs.append((last_event, current_event))
-        last_event = current_event            
+        if last_event and last_event.Event == current_event.Event:
+            pass # ignore this duplicate event
+        else:
+            last_event = current_event            
         if datetime.utcnow() > end_time:
             break
 except CommError as error:
