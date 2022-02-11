@@ -31,7 +31,7 @@ Make script executable and writeable
     pip install google-auth-oauthlib
     pip install google-auth-httplib2
     pip install pyyaml
-    pip install azure-ai-textanalytics
+    pip install azure-ai-textanalytics==5.2.0b1
     pip install azure-ai-language-questionanswering    
 
     sudo nano client_secret.json
@@ -63,10 +63,8 @@ Make script executable and writeable
     pip install google-auth-oauthlib
     pip install google-auth-httplib2
     pip install pyyaml
-    pip install azure-ai-textanalytics
+    pip install azure-ai-textanalytics==5.2.0b1
     pip install azure-ai-language-questionanswering    
-    pip install amcrest
-    pip install pandas
 
 ## Update requirements.txt
     pip freeze > requirements.txt
