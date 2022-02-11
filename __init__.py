@@ -5,6 +5,7 @@ from adapt.intent import IntentBuilder
 from mycroft import MycroftSkill, intent_handler
 from mycroft.skills.common_play_skill import CommonPlaySkill, CPSMatchLevel
 from mycroft.messagebus import Message
+from mycroft.audio import wait_while_speaking
 import webbrowser
 from time import sleep
 import uuid
@@ -70,6 +71,8 @@ class JoiPhotoSkill(MycroftSkill):
         # launch photo player
         self.open_browser()
 
+        wait_while_speaking()
+
         self.start_next_photo(False)
 
     def open_browser(self):
@@ -127,7 +130,10 @@ class JoiPhotoSkill(MycroftSkill):
             self.log.info("Starting photo %s" % (self.photo.filename))
             self.slideshow.show_photo(self.photo.id, self.photo.baseUrl)
             self.photo_intro(self.photo)
+            wait_while_speaking()
             self.start_monitor()
+            user_response = self.get_response()
+            self.log.info(f"User said: {user_response}")
             return True
         else:
             self.log.info("No more photos in queue")
@@ -183,7 +189,7 @@ class JoiPhotoSkill(MycroftSkill):
             self.play_state.is_playing = False
             self.stop_monitor()
             self.photo_followup(self.photo)
-
+            wait_while_speaking()
             started = self.start_next_photo(True)
             if not started:
                 self.session_end()
