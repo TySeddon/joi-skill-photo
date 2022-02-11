@@ -11,6 +11,8 @@ from time import sleep
 import uuid
 import urllib.parse
 import os
+from nlp import NLP
+from dialog import Dialog
 
 from .google_photo import GooglePhoto
 from .slideshow import Slideshow, JOI_SERVER_URL
@@ -47,6 +49,9 @@ class JoiPhotoSkill(MycroftSkill):
         self.stopped = False
 
         self.resident_name = "Ruth"
+        kb_project = 'joi-ruth'
+        self.nlp = NLP(kb_project)
+        self.dialog = Dialog(self.nlp, self.resident_name)        
 
         # start the session
         self.speak_dialog(key="Session_Start", 
@@ -98,15 +103,13 @@ class JoiPhotoSkill(MycroftSkill):
                           data={
                               "resident_name": self.resident_name,
                               "object_name": "pretty flowers"
-                            },
-                          wait=True)
+                            })
 
     def photo_followup(self, photo):
         self.log.info("photo_followup")
         if self.stopped: return 
         self.speak_dialog(key="Photo_Followup",
-                          data={"resident_name": self.resident_name},
-                          wait=True)
+                          data={"resident_name": self.resident_name})
 
     ###########################################
 
@@ -131,9 +134,28 @@ class JoiPhotoSkill(MycroftSkill):
             self.slideshow.show_photo(self.photo.id, self.photo.baseUrl)
             self.photo_intro(self.photo)
             wait_while_speaking()
+
             self.start_monitor()
+
+            ###########
             user_response = self.get_response()
             self.log.info(f"User said: {user_response}")
+            if user_response is not None:
+                entities = self.nlp.recognize_entities(user_response)
+                for e in entities:
+                    self.log.info(f"Extracted entity {e.text}")
+                entity_text = 'that' # generic place holder in case we can't identify any entities
+                if entities:
+                    entity = random.choice(entities)
+                    entity_text = entity.text
+                self.speak_dialog(key='Response_Followup',
+                          data={
+                              "resident_name": self.resident_name,
+                              "entity_text": entity_text
+                            })
+                wait_while_speaking()
+            ###########
+
             return True
         else:
             self.log.info("No more photos in queue")

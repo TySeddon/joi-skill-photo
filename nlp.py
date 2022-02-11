@@ -30,7 +30,7 @@ class NLP():
                 print(f"{o.source}, {o.text}, {o.category}, {o.subcategory}, {o.confidence_score}")
             print('------------------------------------------')
 
-    # Example function for recognizing entities from text
+    # function for recognizing entities from text
     def recognize_entities(self, documents):
         try:
             result = self.ta_client.recognize_entities(documents = documents)[0]
