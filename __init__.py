@@ -81,7 +81,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.start_next_photo(False)
 
     def open_browser(self):
-        url = "%s/joi/slideshow?id=%s" % (JOI_SERVER_URL, self.slideshow.slideshow_id)
+        url = f"{JOI_SERVER_URL}/joi/slideshow?id={self.slideshow.slideshow_id}"
         webbrowser.open(url=url, autoraise=True)
 
     def close_browser(self):
@@ -99,11 +99,21 @@ class JoiPhotoSkill(MycroftSkill):
     def photo_intro(self, photo):
         self.log.info("photo_intro")
         if self.stopped: return 
-        self.speak_dialog(key="Photo_Intro",
-                          data={
-                              "resident_name": self.resident_name,
-                              "object_name": "pretty flowers"
-                            })
+
+        self.log.info(f"Starting photo: {self.photo.filename}")
+        object_text = photo.description
+        self.log.info(f"Photo description: {object_text}")
+        prompts = dialog.compose_prompts(object_text)
+        if prompts:
+            prompt = random.choice(prompts)
+            self.log.info(f"Selected prompt {prompt} from {len(prompts)} possible prompts")
+            self.speak(prompt)
+        else:
+            self.log.warn(f"No prompts found for {object_text}.  Falling back to dialog Photo_Intro")
+            self.speak_dialog(key="Photo_Intro",
+                            data={
+                                "resident_name": self.resident_name
+                                })
 
     def photo_followup(self, photo):
         self.log.info("photo_followup")
@@ -123,6 +133,24 @@ class JoiPhotoSkill(MycroftSkill):
         else:
             return None
 
+    def get_user_response(self):
+        user_response = self.get_response()
+        self.log.info(f"User said: {user_response}")
+        if user_response is not None:
+            entities = self.nlp.recognize_entities(user_response)
+            for e in entities:
+                self.log.info(f"Extracted entity {e.text}")
+            entity_text = 'that' # generic place holder in case we can't identify any entities
+            if entities:
+                entity = random.choice(entities)
+                entity_text = entity.text
+            self.speak_dialog(key='Response_Followup',
+                        data={
+                            "resident_name": self.resident_name,
+                            "entity_text": entity_text
+                        })
+            wait_while_speaking()
+
     def start_next_photo(self, pauseFirst):
         self.photo = self.get_next_photo()
         if self.photo:
@@ -130,31 +158,14 @@ class JoiPhotoSkill(MycroftSkill):
             #if pauseFirst:
             #    sleep(1)
             if self.stopped: return False
-            self.log.info("Starting photo %s" % (self.photo.filename))
+            self.log.info(f"Starting photo {self.photo.filename}")
             self.slideshow.show_photo(self.photo.id, self.photo.baseUrl)
             self.photo_intro(self.photo)
             wait_while_speaking()
 
             self.start_monitor()
 
-            ###########
-            user_response = self.get_response()
-            self.log.info(f"User said: {user_response}")
-            if user_response is not None:
-                entities = self.nlp.recognize_entities(user_response)
-                for e in entities:
-                    self.log.info(f"Extracted entity {e.text}")
-                entity_text = 'that' # generic place holder in case we can't identify any entities
-                if entities:
-                    entity = random.choice(entities)
-                    entity_text = entity.text
-                self.speak_dialog(key='Response_Followup',
-                          data={
-                              "resident_name": self.resident_name,
-                              "entity_text": entity_text
-                            })
-                wait_while_speaking()
-            ###########
+            self.get_user_response()
 
             return True
         else:
@@ -197,7 +208,7 @@ class JoiPhotoSkill(MycroftSkill):
 
     def monitor_play_state(self):
         self.play_state = self.slideshow.get_playback_state()
-        self.log.info('Tick %i - Showing %s' % (self.play_state.tick_count, self.photo.filename))
+        self.log.info(f"Tick {self.play_state.tick_count} - Showing {self.photo.filename}")
 
         if not self.play_state.is_playing:
             # if no longer playing, abandon polling after 60 seconds
