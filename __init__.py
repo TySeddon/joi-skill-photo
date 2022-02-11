@@ -59,17 +59,13 @@ class JoiPhotoSkill(MycroftSkill):
 
         # login to Google Photo
         self.google_photo = GooglePhoto()
-
         # setup slideshow
         self.slideshow = Slideshow()
-
         # get list of albums
         albums = self.google_photo.get_albums()
-
-        # choose a playlist
+        # choose a album
         album = random.choice(albums)
         photos = self.google_photo.get_media_items(album.id)
-
         # create a random set of photos for this session
         self.session_photos = self.suffle_photos(photos)
 
@@ -134,16 +130,14 @@ class JoiPhotoSkill(MycroftSkill):
             return None
 
     def get_user_response(self):
-        user_response = self.get_response()
+        user_response = self.get_response() # listen to user
         self.log.info(f"User said: {user_response}")
         if user_response is not None:
             entities = self.nlp.recognize_entities(user_response)
             for e in entities:
                 self.log.info(f"Extracted entity {e.text}")
-            entity_text = 'that' # generic place holder in case we can't identify any entities
-            if entities:
-                entity = random.choice(entities)
-                entity_text = entity.text
+            entity = random.choice(entities) if entities else None
+            entity_text = entity.text if entity else 'that' # generic place holder in case we can't identify any entities
             self.speak_dialog(key='Response_Followup',
                         data={
                             "resident_name": self.resident_name,
