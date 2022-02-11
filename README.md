@@ -65,7 +65,8 @@ Make script executable and writeable
     pip install pyyaml
     pip install azure-ai-textanalytics
     pip install azure-ai-language-questionanswering    
-    pip install amcrest --upgrade
+    pip install amcrest
+    pip install pandas
 
 ## Update requirements.txt
     pip freeze > requirements.txt
