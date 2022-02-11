@@ -4,9 +4,9 @@ from datetime import datetime
 import requests
 from munch import munchify
 import json
+import enviro
 
-#JOI_SERVER_URL = 'http://127.0.0.1:8000'
-JOI_SERVER_URL = 'https://joi-test-site.azurewebsites.net'
+JOI_SERVER_URL = enviro.get_value("joi_server_url")
 
 SLIDESHOW_API_PATH = '/joi/v1/slideshows/'
 
