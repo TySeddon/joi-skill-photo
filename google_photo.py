@@ -22,8 +22,11 @@ class GooglePhoto():
                 creds = pickle.load(tokenFile)
         if not creds or not creds.valid:
             if (creds and creds.expired and creds.refresh_token):
-                creds.refresh(Request())
-            else:
+                try:
+                    creds.refresh(Request())
+                except Exception as error:
+                    creds = None                    
+            if not creds:
                 flow = InstalledAppFlow.from_client_secrets_file('client_secret.json', SCOPES)
                 creds = flow.run_local_server(port = 0)
             with open("token.pickle", "wb") as tokenFile:
