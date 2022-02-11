@@ -11,8 +11,8 @@ from time import sleep
 import uuid
 import urllib.parse
 import os
-from nlp import NLP
-from dialog import Dialog
+from .nlp import NLP
+from .dialog import Dialog
 
 from .google_photo import GooglePhoto
 from .slideshow import Slideshow, JOI_SERVER_URL
