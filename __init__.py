@@ -138,6 +138,10 @@ class JoiPhotoSkill(MycroftSkill):
         user_response = self.get_response() # listen to user
         self.log.info(f"User said: {user_response}")
         if user_response is not None:
+            if user_response.lower() == "stop":
+                self.stop()
+                return
+
             entities = self.nlp.recognize_entities([user_response])
             for e in entities:
                 self.log.info(f"Extracted entity {e.text}")
