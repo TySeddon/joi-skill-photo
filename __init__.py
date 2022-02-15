@@ -277,7 +277,8 @@ class JoiPhotoSkill(MycroftSkill):
         or an expired alarm notification.
         """
         self.log.info("mycroft.stop")
-        self.slideshow.end_slideshow()
+        if self.slideshow:
+            self.slideshow.end_slideshow()
         self.stopped = True
         self.play_state.is_playing = False
 
@@ -294,7 +295,8 @@ class JoiPhotoSkill(MycroftSkill):
         or that have initiated new processes.
         """
         self.log.info("shutdown")
-        self.slideshow.end_slideshow()
+        if self.slideshow:
+            self.slideshow.end_slideshow()
         self.stopped = True
         self.play_state.is_playing = False
         self.stop_monitor()
