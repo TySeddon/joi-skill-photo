@@ -4,9 +4,9 @@ from datetime import datetime
 import requests
 from munch import munchify
 import json
-import enviro
+from .enviro import get_value
 
-JOI_SERVER_URL = enviro.get_value("joi_server_url")
+JOI_SERVER_URL = get_value("joi_server_url")
 
 SLIDESHOW_API_PATH = '/joi/v1/slideshows/'
 
