@@ -280,7 +280,8 @@ class JoiPhotoSkill(MycroftSkill):
         if self.slideshow:
             self.slideshow.end_slideshow()
         self.stopped = True
-        self.play_state.is_playing = False
+        if self.play_state:
+            self.play_state.is_playing = False
 
         self.stop_monitor()
         self.stop_idle_check()
@@ -298,7 +299,8 @@ class JoiPhotoSkill(MycroftSkill):
         if self.slideshow:
             self.slideshow.end_slideshow()
         self.stopped = True
-        self.play_state.is_playing = False
+        if self.play_state:
+            self.play_state.is_playing = False
         self.stop_monitor()
         self.stop_idle_check()
 
