@@ -1,7 +1,7 @@
 from imp import source_from_cache
 from re import sub
 from munch import munchify
-from nlp import NLP
+from .nlp import NLP
 
 class Dialog():
 
