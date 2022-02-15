@@ -36,6 +36,7 @@ class NLP():
             result = self.ta_client.recognize_entities(documents = documents)[0]
             return [entity for entity in result.entities]
         except Exception as err:
+            raise err
             print("Encountered exception. {}".format(err))
             return []
 
@@ -52,6 +53,7 @@ class NLP():
                 print(response.id, response.error)
 
         except Exception as err:
+            raise err
             print("Encountered exception. {}".format(err))
 
 
