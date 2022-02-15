@@ -100,6 +100,10 @@ class JoiPhotoSkill(MycroftSkill):
         object_text = photo.description
         self.log.info(f"Photo description: {object_text}")
         prompts_objs = self.dialog.compose_prompts(object_text)
+
+        # give user a few seconds to look at photo before prompting
+        sleep(3)
+
         if prompts_objs:
             prompt_obj = random.choice(prompts_objs)
             prompt = prompt_obj.prompt
