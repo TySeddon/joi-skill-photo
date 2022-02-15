@@ -1,3 +1,4 @@
+from logging import exception
 from azure.ai.textanalytics import TextAnalyticsClient, ExtractSummaryAction
 from azure.core.credentials import AzureKeyCredential
 from azure.ai.language.questionanswering import QuestionAnsweringClient
@@ -50,6 +51,7 @@ class NLP():
             if not response.is_error:
                 return [phrase for phrase in response.key_phrases]                
             else:
+                raise Exception(response.error)
                 print(response.id, response.error)
 
         except Exception as err:
