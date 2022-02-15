@@ -99,10 +99,11 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info(f"Starting photo: {self.photo.filename}")
         object_text = photo.description
         self.log.info(f"Photo description: {object_text}")
-        prompts = self.dialog.compose_prompts(object_text)
-        if prompts:
-            prompt = random.choice(prompts)
-            self.log.info(f"Selected prompt {prompt} from {len(prompts)} possible prompts")
+        prompts_objs = self.dialog.compose_prompts(object_text)
+        if prompts_objs:
+            prompt_obj = random.choice(prompts_objs)
+            prompt = prompt_obj.prompt
+            self.log.info(f"Selected prompt {prompt} from {len(prompts_objs)} possible prompts")
             self.speak(prompt)
         else:
             self.log.warn(f"No prompts found for {object_text}.  Falling back to dialog Photo_Intro")
