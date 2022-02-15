@@ -38,13 +38,17 @@ class Dialog():
         list = []
         if subcategory=="food" and product_text not in Dialog.GENERIC_FOOD_NAMES:
             list.extend([
+                f"That is a delicious looking {product_text}?",
+                f"That is a yummy looking {product_text}?",
                 f"How do you make {product_text}?",
                 f"Who taught you to make {product_text}?",
                 f"When do you typicallly eat {product_text}?",
             ])
         else:
             list.extend([
-                f"That is a nice looking {product_text}"
+                f"That is a nice looking {product_text}",
+                f"What a lovely {product_text}",
+                f"This is a beautiful {product_text}",
             ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
@@ -58,7 +62,9 @@ class Dialog():
             f"How did you learn {skill_text}?",
             f"Who taught you {skill_text}?",
             f"Who do you like to {skill_text} with?",
-            f"Is {skill_text} difficult to learn?"
+            f"Do you like to {skill_text} with other people?",
+            f"Is {skill_text} something you have done for a long time?",
+            f"Is {skill_text} hard to learn?",
         ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
@@ -69,7 +75,9 @@ class Dialog():
         list = []
         list.extend([
             f"What else do you like to do with {person_text}?",
-            f"It must be fun to spend time with {person_text}"
+            f"It must be fun to spend time with {person_text}",
+            f"It must be nice to spend time with {person_text}",
+            f"It must be an adventure to spend time with {person_text}",
         ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
         
@@ -79,7 +87,7 @@ class Dialog():
         list = []
         list.extend([
             f"What else do you like to do with your {persontype_text}?",
-            f"It must be fun to spend time with your {persontype_text}"
+            f"It must be fun to spend time with your {persontype_text}",
         ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
@@ -91,12 +99,14 @@ class Dialog():
             event_text = event_text.replace('the ', '')
             list.extend([
                 f"What does your family do in {event_text}?",
-                f"Can you tell me a story about one memorable {event_text}?"
+                f"Do you like to visit your family in {event_text}?",
+                f"Tell me a story about {event_text}?",
             ])
         else:
             list.extend([
                 f"What does your family do at {event_text}?",
-                f"Can you tell me a story about one memorable {event_text}?"
+                f"Tell me a story about {event_text}?",
+                f"Do your friends come to {event_text}?",
             ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
@@ -107,21 +117,29 @@ class Dialog():
         list = []
         if subcategory=="GPE" or subcategory=="Geographical":
             list.extend([
-                f"What is it like in {location_text}?",
-                f"{location_text} looks like a nice place",
-                f"Do you like to go to {location_text}?"
+                f"Is {location_text} a pleasant place?",
+                f"{location_text} looks like a beautiful place",
+                f"{location_text} looks like a lovely place",
+                f"Is {location_text} a friendly place?",
+                f"Is it pretty in {location_text}?",
+                f"Looks like there is a lot to do in {location_text}",
+                f"Do you like to visit friends in {location_text}?",
+                f"Do you like to go to {location_text}?",
             ])
         elif subcategory=="Structural":
             list.extend([
+                f"Is {location_text} comfortable?",
                 f"Can you tell me more about this {location_text}?",
                 f"What a nice looking {location_text}",
+                f"Do you like to go to {location_text}?",
+                f"What kinds of things do you see at {location_text}?",
+                f"What are your favorite things to do at {location_text}?",
             ])
         else:        
             list.extend([
-                f"What is it like at the {location_text}?",
                 f"Do you like to go to the {location_text}?",
                 f"What kinds of things do you see at the {location_text}?",
-                f"What are your favorite things to do at the {location_text}?"
+                f"What are your favorite things to do at the {location_text}?",
             ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
@@ -140,7 +158,8 @@ class Dialog():
         list = []
         list.extend([
             f"This must make you feel proud",
-            f"{pride_text} must make you feel proud"
+            f"{pride_text} must make you feel proud",
+            f"Does {pride_text} make you happy?",
         ])
         return [self.wrap_entity_prompt(s,entity) for s in list]
 
