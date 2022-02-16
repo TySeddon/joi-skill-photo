@@ -1,7 +1,8 @@
+import uuid
 import requests
 import json
 from munch import munchify
-import datetime
+from datetime import datetime
 import enviro
 
 BASE_URL = enviro.get_value("joi_server_url")
@@ -68,23 +69,24 @@ class JoiClient():
     def start_MemoryBoxSession(self, memorybox_id, start_method):
         response = requests.post(MEMORYBOXSESSION_PATH, headers=self._build_header(), 
                     json={
-                        'memorybox_id': memorybox_id,
-                        'resident_id' : self.resident_id,
-                        'device_id': self.device_id,
+                        'memorybox_session_id': str(uuid.uuid4()),
+                        'memorybox': memorybox_id,
+                        'resident' : self.resident_id,
+                        'device': self.device_id,
                         'session_start_method': start_method,
-                        'session_start_datetime': datetime.utcnow()
+                        'session_start_datetime': datetime.utcnow().isoformat()
                     })
-        if response.status_code == 200:
+        if response.status_code == 201:
             return munchify(json.loads(response.content))
         else:
             raise Exception(f"Error calling {response.url} Status code {response.status_code}.  {response.reason} {response.content}")     
 
     def end_MemoryBoxSession(self, memorybox_session_id, session_end_method, resident_self_reported_feeling):
-        response = requests.post(MEMORYBOXSESSION_PATH, headers=self._build_header(), 
+        url = f"{MEMORYBOXSESSION_PATH}{memorybox_session_id}/end/"
+        response = requests.post(url, headers=self._build_header(), 
                     json={
-                        'memorybox_session_id': memorybox_session_id,
                         'session_end_method': session_end_method,
-                        'session_end_datetime': datetime.utcnow(),
+                        'session_end_datetime': datetime.utcnow().isoformat(),
                         'resident_self_reported_feeling': resident_self_reported_feeling
                     })
         if response.status_code == 200:
@@ -95,25 +97,27 @@ class JoiClient():
     def start_MemoryBoxSessionMedia(self, memorybox_session_id, media_url, media_name, media_artist, media_tags, media_classification):
         response = requests.post(MEMORYBOXSESSIONMEDIA_PATH, headers=self._build_header(), 
                     json={
-                        'memorybox_session_id': memorybox_session_id,
-                        'resident_id' : self.resident_id,
+                        'memorybox_session_media_id': str(uuid.uuid4()),
+                        'memorybox_session': memorybox_session_id,
+                        'resident' : self.resident_id,
                         'media_url': media_url,
-                        'media_start_datetime': datetime.utcnow(),
+                        'media_start_datetime': datetime.utcnow().isoformat(),
                         'media_name': media_name,
                         'media_artist': media_artist,
                         'media_tags': media_tags,
                         'media_classification': media_classification
                     })
-        if response.status_code == 200:
+        if response.status_code == 201:
             return munchify(json.loads(response.content))
         else:
             raise Exception(f"Error calling {response.url} Status code {response.status_code}.  {response.reason} {response.content}")     
 
-    def end_MemoryBoxSessionMedia(self, memorbybox_session_media_id, resident_motion, resident_utterances, resident_self_reported_feeling):
-        response = requests.patch(MEMORYBOXSESSIONMEDIA_PATH, headers=self._build_header(), 
+    def end_MemoryBoxSessionMedia(self, memorybox_session_media_id, media_percent_completed, resident_motion, resident_utterances, resident_self_reported_feeling):
+        url = f"{MEMORYBOXSESSIONMEDIA_PATH}{memorybox_session_media_id}/end/"
+        response = requests.post(url, headers=self._build_header(), 
                     json={
-                        'memorbybox_session_media_id': memorbybox_session_media_id,
-                        'media_end_datetime': datetime.utcnow(),
+                        'media_percent_completed': media_percent_completed,
+                        'media_end_datetime': datetime.utcnow().isoformat(),
                         'resident_motion': resident_motion,
                         'resident_utterances': resident_utterances,
                         'resident_self_reported_feeling': resident_self_reported_feeling
@@ -123,17 +127,18 @@ class JoiClient():
         else:
             raise Exception(f"Error calling {response.url} Status code {response.status_code}.  {response.reason} {response.content}")     
 
-    def add_MediaInteraction(self, memorybox_session_media, media_percent_completed, event, data):
+    def add_MediaInteraction(self, memorybox_session_media_id, media_percent_completed, event, data):
         response = requests.post(MEDIAINTERACTION_PATH, headers=self._build_header(), 
                     json={
-                        'memorybox_session_media': memorybox_session_media,
-                        'resident_id' : self.resident_id,
-                        'log_datetime': datetime.utcnow(),
+                        'media_interaction_id': str(uuid.uuid4()),
+                        'memorybox_session_media': memorybox_session_media_id,
+                        'resident' : self.resident_id,
+                        'log_datetime': datetime.utcnow().isoformat(),
                         'media_percent_completed': media_percent_completed,
                         'event': event,
                         'data': data,
                     })
-        if response.status_code == 200:
+        if response.status_code == 201:
             return munchify(json.loads(response.content))
         else:
             raise Exception(f"Error calling {response.url} Status code {response.status_code}.  {response.reason} {response.content}")     
