@@ -3,7 +3,7 @@ import requests
 import json
 from munch import munchify
 from datetime import datetime
-from enviro import get_setting
+from .enviro import get_setting
 
 BASE_URL = get_setting("joi_server_url")
 LOGIN_PATH = f"{BASE_URL}/joi/v1/users/login/"
