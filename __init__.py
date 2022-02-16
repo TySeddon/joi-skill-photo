@@ -14,7 +14,7 @@ import os
 from .nlp import NLP
 from .dialog import Dialog
 from .enviro import get_setting
-from joiclient import JoiClient, PHOTO_TYPE
+from .joiclient import JoiClient, PHOTO_TYPE
 
 from .google_photo import GooglePhoto
 from .slideshow import Slideshow, JOI_SERVER_URL
