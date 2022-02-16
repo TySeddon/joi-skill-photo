@@ -3,9 +3,9 @@ import requests
 import json
 from munch import munchify
 from datetime import datetime
-import enviro
+from enviro import get_setting
 
-BASE_URL = enviro.get_value("joi_server_url")
+BASE_URL = get_setting("joi_server_url")
 LOGIN_PATH = f"{BASE_URL}/joi/v1/users/login/"
 DEVICE_PATH = f"{BASE_URL}/joi/v1/devices/"
 RESIDENT_PATH = f"{BASE_URL}/joi/v1/residents/"
@@ -13,6 +13,9 @@ MEMORYBOX_PATH = f"{BASE_URL}/joi/v1/memoryboxes/"
 MEMORYBOXSESSION_PATH = f"{BASE_URL}/joi/v1/memoryboxsessions/"
 MEMORYBOXSESSIONMEDIA_PATH = f"{BASE_URL}/joi/v1/memoryboxsessionmedia/"
 MEDIAINTERACTION_PATH = f"{BASE_URL}/joi/v1/mediainteractions/"
+
+MUSIC_TYPE = 1
+PHOTO_TYPE = 2
 
 class JoiClient():
     """
@@ -33,8 +36,8 @@ class JoiClient():
         self.token = self._login(self.resident_id)
 
     def _login(self, resident_id):
-        username = enviro.get_value('username', resident_id)
-        password = enviro.get_value('password', resident_id)
+        username = get_setting('username', resident_id)
+        password = get_setting('password', resident_id)
         response = requests.post(LOGIN_PATH,
                         json={
                             'username': username,

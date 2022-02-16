@@ -1,8 +1,8 @@
 import random
 from joiclient import JoiClient
-import enviro
+from enviro import get_setting
 
-device_id = enviro.get_value("device_id")
+device_id = get_setting("device_id")
 client = JoiClient(device_id)
 resident = client.get_Resident()
 print(resident)

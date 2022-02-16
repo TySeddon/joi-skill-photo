@@ -5,7 +5,7 @@ from azure.ai.language.questionanswering import QuestionAnsweringClient
 from azure.ai.language.questionanswering import models as qna
 import re
 from munch import munchify
-from .enviro import get_value
+from .enviro import get_setting
 from itertools import groupby
 
 class NLP():
@@ -16,8 +16,8 @@ class NLP():
 
     # Authenticate the client using your key and endpoint 
     def create_ta_client(self):
-        ta_key = get_value("ta_key")
-        ta_endpoint = get_value("ta_endpoint")
+        ta_key = get_setting("ta_key")
+        ta_endpoint = get_setting("ta_endpoint")
         credential = AzureKeyCredential(ta_key)
         text_analytics_client = TextAnalyticsClient(
                 endpoint=ta_endpoint, 
@@ -138,10 +138,10 @@ class NLP():
             print(f"{r.question}, {r.long_answer}, {r.short_answer.text if r.short_answer else None}, {r.confidence}")
 
     def answer_question_kb(self, question):
-        qna_key = get_value("qna_key")
-        qna_endpoint = get_value("qna_endpoint")
+        qna_key = get_setting("qna_key")
+        qna_endpoint = get_setting("qna_endpoint")
         knowledge_base_project = self.knowledge_base_project
-        knowledge_base_deployment = get_value("knowledge_base_deployment")
+        knowledge_base_deployment = get_setting("knowledge_base_deployment")
 
         credential = AzureKeyCredential(qna_key)
         client = QuestionAnsweringClient(qna_endpoint, credential)

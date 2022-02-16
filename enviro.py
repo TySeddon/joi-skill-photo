@@ -1,6 +1,6 @@
 import yaml
 
-def get_value(key, resident_id=None):
+def get_setting(key, resident_id=None):
     if resident_id is None:
         # if we are trying to lookup an environment key (not specific to resident)
         with open("enviro.yaml", 'rt') as stream:

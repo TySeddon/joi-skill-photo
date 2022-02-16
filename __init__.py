@@ -13,6 +13,8 @@ import urllib.parse
 import os
 from .nlp import NLP
 from .dialog import Dialog
+from .enviro import get_setting
+from joiclient import JoiClient, PHOTO_TYPE
 
 from .google_photo import GooglePhoto
 from .slideshow import Slideshow, JOI_SERVER_URL
@@ -46,18 +48,37 @@ class JoiPhotoSkill(MycroftSkill):
     def handle_play_photo_intent(self, message):
         """ This is an Adapt intent handler, it is triggered by a keyword."""
         self.log.info("handle_play_photo_intent")
-        self.log.info(os.getcwd())
+        self.start(start_method=f"User said: {message}")
+
+    def start(self, start_method):
+        """ This is an Adapt intent handler, it is triggered by a keyword."""
+        self.log.info("start")
         self.stopped = False
 
         # stop the music player (in case it is running)
         self.bus.emit(Message("skill.joi-skill-music.stop"))
 
-        self.resident_name = "Ruth"
-        kb_project = 'joi-ruth'
-        self.nlp = NLP(kb_project)
-        self.dialog = Dialog(self.nlp, self.resident_name)        
+
+        # establish connection to Joi server
+        joi_device_id = get_setting("device_id")
+        self.joi_client = JoiClient(joi_device_id)
+        resident = self.joi_client.get_Resident()
+        self.resident_name = resident.first_name
+
+        # setup natural language processing clients
+        self.nlp = NLP(resident.knowledge_base_name)
+        self.dialog = Dialog(self.nlp, self.resident_name)   
+
+        # get memory boxes. Choose one at random
+        memoryboxes = self.joi_client.list_MemoryBoxes()
+        photo_memoryboxes = filter(lambda o: o.memorybox_type == PHOTO_TYPE, memoryboxes)
+        photo_memorybox = random.choice(photo_memoryboxes)
 
         # start the session
+        self.memorybox_session = self.joi_client.start_MemoryBoxSession(
+                                    memorybox_id=photo_memorybox.memorybox_id, 
+                                    start_method=start_method)
+
         self.speak_dialog(key="Session_Start", 
                           data={"resident_name": self.resident_name})
 
@@ -66,10 +87,11 @@ class JoiPhotoSkill(MycroftSkill):
         # setup slideshow
         self.slideshow = Slideshow()
         # get list of albums
-        albums = self.google_photo.get_albums()
+        #albums = self.google_photo.get_albums()
         # choose a album
-        album = random.choice(albums)
-        photos = self.google_photo.get_media_items(album.id)
+        #album = filter(lambda o: o.)
+        album_id = photo_memorybox.url
+        photos = self.google_photo.get_media_items(album_id)
         # create a random set of photos for this session
         self.session_photos = self.suffle_photos(photos)
 
