@@ -90,7 +90,10 @@ class JoiPhotoSkill(MycroftSkill):
         # setup slideshow
         self.slideshow = Slideshow()
         # get list of albums
-        #albums = self.google_photo.get_albums()
+        albums = self.google_photo.get_albums()
+        album = random.choice(albums)
+        self.log.info(f"Album id = {album.id}")
+
         # choose a album
         album_id = photo_memorybox.url
         photos = self.google_photo.get_media_items(album_id)
