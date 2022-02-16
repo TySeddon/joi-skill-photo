@@ -48,7 +48,7 @@ class JoiPhotoSkill(MycroftSkill):
     def handle_play_photo_intent(self, message):
         """ This is an Adapt intent handler, it is triggered by a keyword."""
         self.log.info("handle_play_photo_intent")
-        self.start(start_method=f"User said: {message}")
+        self.start(start_method=f"User said: {message.data['utterance']}")
 
     def start(self, start_method):
         """ This is an Adapt intent handler, it is triggered by a keyword."""
@@ -75,7 +75,7 @@ class JoiPhotoSkill(MycroftSkill):
         photo_memoryboxes = list(filter(lambda o: o.memorybox_type == PHOTO_TYPE, memoryboxes))
         self.log.info(f"{len(photo_memoryboxes)} photo_memoryboxes found")
         photo_memorybox = random.choice(photo_memoryboxes)
-        self.log.info(f"Selected memory box {photo_memorybox.name}")
+        self.log.info(f"Selected memory box '{photo_memorybox.name}'")
 
         # start the session
         self.memorybox_session = self.joi_client.start_MemoryBoxSession(
