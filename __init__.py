@@ -71,8 +71,11 @@ class JoiPhotoSkill(MycroftSkill):
 
         # get memory boxes. Choose one at random
         memoryboxes = self.joi_client.list_MemoryBoxes()
-        photo_memoryboxes = filter(lambda o: o.memorybox_type == PHOTO_TYPE, memoryboxes)
+        self.log.info(f"{len(memoryboxes)} memoryboxes found")
+        photo_memoryboxes = list(filter(lambda o: o.memorybox_type == PHOTO_TYPE, memoryboxes))
+        self.log.info(f"{len(photo_memoryboxes)} photo_memoryboxes found")
         photo_memorybox = random.choice(photo_memoryboxes)
+        self.log.info(f"Selected memory box {photo_memorybox.name}")
 
         # start the session
         self.memorybox_session = self.joi_client.start_MemoryBoxSession(
@@ -89,7 +92,6 @@ class JoiPhotoSkill(MycroftSkill):
         # get list of albums
         #albums = self.google_photo.get_albums()
         # choose a album
-        #album = filter(lambda o: o.)
         album_id = photo_memorybox.url
         photos = self.google_photo.get_media_items(album_id)
         # create a random set of photos for this session
