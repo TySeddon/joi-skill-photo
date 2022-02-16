@@ -8,8 +8,6 @@ from mycroft.messagebus import Message
 from mycroft.audio import wait_while_speaking
 import webbrowser
 from time import sleep
-import uuid
-import urllib.parse
 import os
 from .nlp import NLP
 from .dialog import Dialog
@@ -264,6 +262,7 @@ class JoiPhotoSkill(MycroftSkill):
             wait_while_speaking()
             started = self.start_next_photo(True)
             if not started:
+                self.end_memorybox_session("normal completion")
                 self.session_end()
                 return
 
@@ -340,7 +339,7 @@ class JoiPhotoSkill(MycroftSkill):
                             event=event,
                             data=data)
 
-    def stop_session(self, end_method):
+    def stop_memorybox_session(self, end_method):
         self.end_memorybox_session_media()
         self.end_memorybox_session(end_method)
 
@@ -373,7 +372,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.stop_monitor()
         self.stop_idle_check()
         self.close_browser()
-        self.stop_session("stop")
+        self.stop_memorybox_session("stop")
         return True
 
     def shutdown(self):
@@ -391,7 +390,7 @@ class JoiPhotoSkill(MycroftSkill):
             self.play_state.is_playing = False
         self.stop_monitor()
         self.stop_idle_check()
-        self.stop_session("shutdown")
+        self.stop_memorybox_session("shutdown")
 
 
 def create_skill():
