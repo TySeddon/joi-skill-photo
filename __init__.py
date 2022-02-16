@@ -92,10 +92,11 @@ class JoiPhotoSkill(MycroftSkill):
         # get list of albums
         albums = self.google_photo.get_albums()
         album = random.choice(albums)
-        self.log.info(f"Album id = {album.id}")
+        self.log.info(f"album.id = {album.id}")
 
         # choose a album
         album_id = photo_memorybox.url
+        self.log.info(f"Album_id = {album_id}")
         photos = self.google_photo.get_media_items(album_id)
         # create a random set of photos for this session
         self.session_photos = self.suffle_photos(photos)
