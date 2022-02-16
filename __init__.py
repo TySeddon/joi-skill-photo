@@ -65,6 +65,9 @@ class JoiPhotoSkill(MycroftSkill):
         resident = self.joi_client.get_Resident()
         self.resident_name = resident.first_name
 
+        self.speak_dialog(key="Session_Start", 
+                          data={"resident_name": self.resident_name})
+
         # setup natural language processing clients
         self.nlp = NLP(resident.knowledge_base_name)
         self.dialog = Dialog(self.nlp, self.resident_name)   
@@ -78,25 +81,20 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info(f"Selected memory box '{photo_memorybox.name}'")
 
         # start the session
-        self.memorybox_session = self.joi_client.start_MemoryBoxSession(
-                                    memorybox_id=photo_memorybox.memorybox_id, 
-                                    start_method=start_method)
-
-        self.speak_dialog(key="Session_Start", 
-                          data={"resident_name": self.resident_name})
+        self.start_memorybox_session(photo_memorybox, start_method)
 
         # login to Google Photo
         self.google_photo = GooglePhoto()
         # setup slideshow
         self.slideshow = Slideshow()
         # get list of albums
-        albums = self.google_photo.get_albums()
-        album = random.choice(albums)
-        self.log.info(f"album.id = {album.id}")
+        # albums = self.google_photo.get_albums()
+        # album = random.choice(albums)
+        # self.log.info(f"album.id = {album.id}")
 
         # choose a album
         album_id = photo_memorybox.url
-        self.log.info(f"Album_id = {album_id}")
+        self.log.info(f"album_id = {album_id}")
         photos = self.google_photo.get_media_items(album_id)
         # create a random set of photos for this session
         self.session_photos = self.suffle_photos(photos)
@@ -141,6 +139,7 @@ class JoiPhotoSkill(MycroftSkill):
             prompt = prompt_obj.prompt
             self.log.info(f"Selected prompt {prompt} from {len(prompts_objs)} possible prompts")
             self.speak(prompt)
+            self.add_media_interaction(event="Joi prompt", data=prompt)
         else:
             self.log.warn(f"No prompts found for {object_text}.  Falling back to dialog Photo_Intro")
             self.speak_dialog(key="Photo_Intro",
@@ -184,7 +183,10 @@ class JoiPhotoSkill(MycroftSkill):
                             "resident_name": self.resident_name,
                             "entity_text": entity_text
                         })
+            self.add_media_interaction(event="Resident response", data=user_response)                        
             wait_while_speaking()
+        else:
+            self.add_media_interaction(event="Resident response", data="None")
 
     def start_next_photo(self, pauseFirst):
         self.photo = self.get_next_photo()
@@ -195,6 +197,7 @@ class JoiPhotoSkill(MycroftSkill):
             if self.stopped: return False
             self.log.info(f"Starting photo {self.photo.filename}")
             self.slideshow.show_photo(self.photo.id, self.photo.baseUrl)
+            self.start_memorybox_session_media(self.photo)
             self.photo_intro(self.photo)
             wait_while_speaking()
 
@@ -257,6 +260,7 @@ class JoiPhotoSkill(MycroftSkill):
             self.play_state.is_playing = False
             self.stop_monitor()
             self.photo_followup(self.photo)
+            self.end_memorybox_session_media()
             wait_while_speaking()
             started = self.start_next_photo(True)
             if not started:
@@ -293,6 +297,53 @@ class JoiPhotoSkill(MycroftSkill):
             if self.stopped: return
             self.resume_photo()
 
+
+    ###########################################
+    def start_memorybox_session(self, photo_memorybox, start_method):
+        self.memorybox_session = self.joi_client.start_MemoryBoxSession(
+                                    memorybox_id=photo_memorybox.memorybox_id, 
+                                    start_method=start_method)
+
+    def end_memorybox_session(self, end_method):
+        if self.memorybox_session:
+            self.joi_client.end_MemoryBoxSession(
+                            self.memorybox_session.memorybox_session_id,
+                            session_end_method=end_method, 
+                            resident_self_reported_feeling="NA")
+            self.memorybox_session = None                        
+
+    def start_memorybox_session_media(self, photo):
+        if self.memorybox_session:
+            self.session_media = self.joi_client.start_MemoryBoxSessionMedia(
+                            memorybox_session_id=self.memorybox_session.memorybox_session_id, 
+                            media_url=photo.baseUrl,
+                            media_name=photo.filename,
+                            media_artist="NA",
+                            media_tags=photo.description,
+                            media_classification="NA")
+
+    def end_memorybox_session_media(self):
+        if self.session_media:
+            self.joi_client.end_MemoryBoxSessionMedia(
+                            memorybox_session_media_id=self.session_media.memorybox_session_media_id, 
+                            media_percent_completed = 100,
+                            resident_motion="NA", 
+                            resident_utterances="NA", 
+                            resident_self_reported_feeling="NA")
+            self.session_media = None                        
+
+    def add_media_interaction(self, event, data):
+        if self.session_media:
+            media_interaction = self.joi_client.add_MediaInteraction(
+                            memorybox_session_media_id=self.session_media.memorybox_session_media_id, 
+                            media_percent_completed=0,
+                            event=event,
+                            data=data)
+
+    def stop_session(self, end_method):
+        self.end_memorybox_session_media()
+        self.end_memorybox_session(end_method)
+
     ###########################################
 
     # def converse(self, utterances, lang):
@@ -322,6 +373,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.stop_monitor()
         self.stop_idle_check()
         self.close_browser()
+        self.stop_session("stop")
         return True
 
     def shutdown(self):
@@ -339,6 +391,7 @@ class JoiPhotoSkill(MycroftSkill):
             self.play_state.is_playing = False
         self.stop_monitor()
         self.stop_idle_check()
+        self.stop_session("shutdown")
 
 
 def create_skill():
