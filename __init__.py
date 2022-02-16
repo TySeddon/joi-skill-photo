@@ -304,7 +304,7 @@ class JoiPhotoSkill(MycroftSkill):
                                     start_method=start_method)
 
     def end_memorybox_session(self, end_method):
-        if self.memorybox_session:
+        if hasattr(self, 'memorybox_session') and self.memorybox_session:
             self.joi_client.end_MemoryBoxSession(
                             self.memorybox_session.memorybox_session_id,
                             session_end_method=end_method, 
@@ -312,7 +312,7 @@ class JoiPhotoSkill(MycroftSkill):
             self.memorybox_session = None                        
 
     def start_memorybox_session_media(self, photo):
-        if self.memorybox_session:
+        if hasattr(self, 'memorybox_session') and self.memorybox_session:
             self.session_media = self.joi_client.start_MemoryBoxSessionMedia(
                             memorybox_session_id=self.memorybox_session.memorybox_session_id, 
                             media_url=photo.baseUrl,
@@ -322,7 +322,7 @@ class JoiPhotoSkill(MycroftSkill):
                             media_classification="NA")
 
     def end_memorybox_session_media(self):
-        if self.session_media:
+        if hasattr(self, 'session_media') and self.session_media:
             self.joi_client.end_MemoryBoxSessionMedia(
                             memorybox_session_media_id=self.session_media.memorybox_session_media_id, 
                             media_percent_completed = 100,
@@ -332,7 +332,7 @@ class JoiPhotoSkill(MycroftSkill):
             self.session_media = None                        
 
     def add_media_interaction(self, event, data):
-        if self.session_media:
+        if hasattr(self, 'session_media') and self.session_media:
             media_interaction = self.joi_client.add_MediaInteraction(
                             memorybox_session_media_id=self.session_media.memorybox_session_media_id, 
                             media_percent_completed=0,
