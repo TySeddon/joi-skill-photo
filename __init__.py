@@ -12,7 +12,7 @@ from joi_skill_utils.dialog import Dialog
 from joi_skill_utils.enviro import get_setting
 from joi_skill_utils.joiclient import JoiClient, PHOTO_TYPE
 from joi_skill_utils.google_photo import GooglePhoto
-from joi_skill_utils.slideshow import Slideshow, JOI_SERVER_URL
+from joi_skill_utils.slideshow import Slideshow
 
 class JoiPhotoSkill(MycroftSkill):
     def __init__(self):
@@ -102,7 +102,8 @@ class JoiPhotoSkill(MycroftSkill):
         self.start_next_photo(False)
 
     def open_browser(self):
-        url = f"{JOI_SERVER_URL}/joi/slideshow?id={self.slideshow.slideshow_id}"
+        joi_server_url = get_setting("joi_server_url")
+        url = f"{joi_server_url}/joi/slideshow?id={self.slideshow.slideshow_id}"
         webbrowser.open(url=url, autoraise=True)
 
     def close_browser(self):
@@ -322,7 +323,7 @@ class JoiPhotoSkill(MycroftSkill):
         if hasattr(self, 'session_media') and self.session_media:
             self.joi_client.end_MemoryBoxSessionMedia(
                             memorybox_session_media_id=self.session_media.memorybox_session_media_id, 
-                            media_percent_completed = 100,
+                            media_percent_completed = 1,
                             resident_motion="NA", 
                             resident_utterances="NA", 
                             resident_self_reported_feeling="NA")
