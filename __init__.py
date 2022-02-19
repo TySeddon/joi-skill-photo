@@ -1,14 +1,12 @@
-from ast import Return
-from operator import truediv
+import os
 import random
+import webbrowser
+from time import sleep
 from adapt.intent import IntentBuilder
 from mycroft import MycroftSkill, intent_handler
 from mycroft.skills.common_play_skill import CommonPlaySkill, CPSMatchLevel
 from mycroft.messagebus import Message
 from mycroft.audio import wait_while_speaking
-import webbrowser
-from time import sleep
-import os
 from joi_skill_utils.nlp import NLP
 from joi_skill_utils.dialog import Dialog
 from joi_skill_utils.enviro import get_setting

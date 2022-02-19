@@ -15,6 +15,8 @@ All of these Mycroft kills Manager (mycroft-msm) commands are executed on the Ra
 In home director create file called update-skills.sh
     #!/bin/sh
     cd ~/mycroft-core/bin
+    echo "----Updating joi-skill-utils----"
+    pip install git+https://github.com/TySeddon/joi-skill-utils   
     echo "----Uninstalling joi-skill-photo----"
     ./mycroft-msm remove joi-skill-photo
     echo "----Installing joi-skill-photo----"
