@@ -9,13 +9,12 @@ from mycroft.audio import wait_while_speaking
 import webbrowser
 from time import sleep
 import os
-from .nlp import NLP
-from .dialog import Dialog
-from .enviro import get_setting
-from .joiclient import JoiClient, PHOTO_TYPE
-
-from .google_photo import GooglePhoto
-from .slideshow import Slideshow, JOI_SERVER_URL
+from joi_skill_utils.nlp import NLP
+from joi_skill_utils.dialog import Dialog
+from joi_skill_utils.enviro import get_setting
+from joi_skill_utils.joiclient import JoiClient, PHOTO_TYPE
+from joi_skill_utils.google_photo import GooglePhoto
+from joi_skill_utils.slideshow import Slideshow, JOI_SERVER_URL
 
 class JoiPhotoSkill(MycroftSkill):
     def __init__(self):

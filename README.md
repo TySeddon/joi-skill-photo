@@ -26,13 +26,7 @@ Make script executable and writeable
 ## One-Time Raspberry Pi setup
     cd ~/mycroft-core        
     source venv-activate.sh  
-    pip install munch
-    pip install google-api-python-client
-    pip install google-auth-oauthlib
-    pip install google-auth-httplib2
-    pip install pyyaml
-    pip install azure-ai-textanalytics==5.2.0b1
-    pip install azure-ai-language-questionanswering    
+    pip install git+https://github.com/TySeddon/joi-skill-utils    
 
     sudo nano client_secret.json
         get content for this file from https://console.developers.google.com/
@@ -58,13 +52,7 @@ Make script executable and writeable
 # Required Packages
     pip install msk
     pip install adapt-parser
-    pip install munch
-    pip install google-api-python-client
-    pip install google-auth-oauthlib
-    pip install google-auth-httplib2
-    pip install pyyaml
-    pip install azure-ai-textanalytics==5.2.0b1
-    pip install azure-ai-language-questionanswering    
+    pip install git+https://github.com/TySeddon/joi-skill-utils
 
 ## Update requirements.txt
     pip freeze > requirements.txt
