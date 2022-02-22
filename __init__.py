@@ -317,7 +317,8 @@ class JoiPhotoSkill(MycroftSkill):
                             media_name=photo.filename,
                             media_artist="NA",
                             media_tags=photo.description,
-                            media_classification="NA")
+                            media_classification="NA",
+                            media_features=None)
 
     def end_memorybox_session_media(self):
         if hasattr(self, 'session_media') and self.session_media:
