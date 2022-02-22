@@ -107,11 +107,13 @@ class JoiPhotoSkill(MycroftSkill):
     ################################
 
     def activate_smarthome_scene(self):
+        self.log.info("activate_smarthome_scene")
         self.bus.emit(Message("recognizer_loop:utterance",  
                                 {'utterances': ["turn on light strip"],  
                                 'lang': 'en-us'}))  
 
     def deactivate_smarthome_scene(self):
+        self.log.info("deactivate_smarthome_scene")
         self.bus.emit(Message("recognizer_loop:utterance",  
                                 {'utterances': ["turn off light strip"],  
                                 'lang': 'en-us'}))  
@@ -388,7 +390,7 @@ class JoiPhotoSkill(MycroftSkill):
             self.play_state.is_playing = False
 
         loop = asyncio.new_event_loop()
-        loop.call_later(5, self.deactivate_smarthome_scene)
+        loop.call_later(5, self.deactivate_smarthome_scene())
         
         self.stop_monitor()
         self.stop_idle_check()
@@ -411,7 +413,7 @@ class JoiPhotoSkill(MycroftSkill):
             self.play_state.is_playing = False
         
         loop = asyncio.new_event_loop()
-        loop.call_later(5, self.deactivate_smarthome_scene)
+        loop.call_later(5, self.deactivate_smarthome_scene())
 
         self.stop_monitor()
         self.stop_idle_check()
