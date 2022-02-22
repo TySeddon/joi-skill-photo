@@ -63,6 +63,8 @@ class JoiPhotoSkill(MycroftSkill):
         self.speak_dialog(key="Session_Start", 
                           data={"resident_name": self.resident_name})
 
+        self.activate_smarthome_scene()
+
         # setup natural language processing clients
         self.nlp = NLP(resident.knowledge_base_name)
         self.dialog = Dialog(self.nlp, self.resident_name)   
@@ -101,6 +103,20 @@ class JoiPhotoSkill(MycroftSkill):
 
         self.start_next_photo(False)
 
+    ################################
+
+    def activate_smarthome_scene(self):
+        self.bus.emit(Message("recognizer_loop:utterance",  
+                                {'utterances': ["turn on light strip"],  
+                                'lang': 'en-us'}))  
+
+    def deactivate_smarthome_scene(self):
+        self.bus.emit(Message("recognizer_loop:utterance",  
+                                {'utterances': ["turn off light strip"],  
+                                'lang': 'en-us'}))  
+
+    ################################
+
     def open_browser(self):
         joi_server_url = get_setting("joi_server_url")
         url = f"{joi_server_url}/joi/slideshow?id={self.slideshow.slideshow_id}"
@@ -114,6 +130,7 @@ class JoiPhotoSkill(MycroftSkill):
         if self.stopped: return 
         self.speak_dialog(key="Session_End",
                           data={"resident_name": self.resident_name})
+        self.deactivate_smarthome_scene()                          
         sleep(5)
         self.slideshow.end_slideshow()
         self.close_browser()
