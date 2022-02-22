@@ -1,6 +1,7 @@
 import os
 import random
 import webbrowser
+import asyncio
 from time import sleep
 from adapt.intent import IntentBuilder
 from mycroft import MycroftSkill, intent_handler
@@ -385,7 +386,10 @@ class JoiPhotoSkill(MycroftSkill):
         self.stopped = True
         if self.play_state:
             self.play_state.is_playing = False
-        self.deactivate_smarthome_scene()              
+
+        loop = asyncio.new_event_loop()
+        loop.call_later(5, self.deactivate_smarthome_scene)
+        
         self.stop_monitor()
         self.stop_idle_check()
         self.close_browser()
@@ -405,7 +409,10 @@ class JoiPhotoSkill(MycroftSkill):
         self.stopped = True
         if self.play_state:
             self.play_state.is_playing = False
-        self.deactivate_smarthome_scene()              
+        
+        loop = asyncio.new_event_loop()
+        loop.call_later(5, self.deactivate_smarthome_scene)
+
         self.stop_monitor()
         self.stop_idle_check()
         self.stop_memorybox_session("shutdown")
