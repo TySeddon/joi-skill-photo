@@ -385,7 +385,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.stopped = True
         if self.play_state:
             self.play_state.is_playing = False
-
+        self.deactivate_smarthome_scene()              
         self.stop_monitor()
         self.stop_idle_check()
         self.close_browser()
@@ -405,6 +405,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.stopped = True
         if self.play_state:
             self.play_state.is_playing = False
+        self.deactivate_smarthome_scene()              
         self.stop_monitor()
         self.stop_idle_check()
         self.stop_memorybox_session("shutdown")
