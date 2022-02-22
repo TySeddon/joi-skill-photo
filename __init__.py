@@ -135,7 +135,7 @@ class JoiPhotoSkill(MycroftSkill):
             prompt = prompt_obj.prompt
             self.log.info(f"Selected prompt {prompt} from {len(prompts_objs)} possible prompts")
             self.speak(prompt)
-            self.add_media_interaction(event="Joi prompt", data=prompt)
+            self.add_media_interaction(elapsed_seconds=0, event="Joi prompt", data=prompt)
         else:
             self.log.warn(f"No prompts found for {object_text}.  Falling back to dialog Photo_Intro")
             self.speak_dialog(key="Photo_Intro",
@@ -179,10 +179,10 @@ class JoiPhotoSkill(MycroftSkill):
                             "resident_name": self.resident_name,
                             "entity_text": entity_text
                         })
-            self.add_media_interaction(event="Resident response", data=user_response)                        
+            self.add_media_interaction(elapsed_seconds=0, event="Resident response", data=user_response)                        
             wait_while_speaking()
         else:
-            self.add_media_interaction(event="Resident response", data="None")
+            self.add_media_interaction(elapsed_seconds=0, event="Resident response", data="None")
 
     def start_next_photo(self, pauseFirst):
         self.photo = self.get_next_photo()
@@ -330,10 +330,11 @@ class JoiPhotoSkill(MycroftSkill):
                             resident_self_reported_feeling="NA")
             self.session_media = None                        
 
-    def add_media_interaction(self, event, data):
+    def add_media_interaction(self, elapsed_seconds, event, data):
         if hasattr(self, 'session_media') and self.session_media:
             media_interaction = self.joi_client.add_MediaInteraction(
                             memorybox_session_media_id=self.session_media.memorybox_session_media_id, 
+                            elapsed_seconds=elapsed_seconds,
                             media_percent_completed=0,
                             event=event,
                             data=data)
