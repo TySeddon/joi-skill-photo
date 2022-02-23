@@ -232,6 +232,7 @@ class JoiPhotoSkill(MycroftSkill):
                 return
 
             sentiment = self.nlp.get_sentiment([user_response])
+            self.log.info(f"positive:{sentiment.positive}, neutral:{sentiment.neutral}, negative:{sentiment.negative}")
             self.sentiments.append(sentiment)
 
             entities = self.nlp.recognize_entities([user_response])
