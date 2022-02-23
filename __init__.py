@@ -181,7 +181,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("photo_followup")
         if self.stopped: return 
 
-        if self.sentiments and self.sentiments[-1].negative > 0.8:
+        if self.sentiments and self.sentiments[-1].negative > 0.8: 
             self.speak_dialog(key="Photo_Followup_Negative",
                           data={"resident_name": self.resident_name})
         else:
