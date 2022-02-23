@@ -28,6 +28,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.play_state = None
         self.google_photo = None
         self.slideshow = None
+        self.sentiments = []
 
     def initialize(self):
         """ Perform any final setup needed for the skill here.
@@ -61,6 +62,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.joi_client = JoiClient(joi_device_id)
         resident = self.joi_client.get_Resident()
         self.resident_name = resident.first_name
+        self.sentiments = []
 
         self.speak_dialog(key="Session_Start", 
                           data={"resident_name": self.resident_name})
@@ -229,17 +231,35 @@ class JoiPhotoSkill(MycroftSkill):
                 self.stop()
                 return
 
+            sentiment = self.nlp.get_sentiment([user_response])
+            self.sentiments.append(sentiment)
+
             entities = self.nlp.recognize_entities([user_response])
             for e in entities:
                 self.log.info(f"Extracted entity {e.text}")
             entity = random.choice(entities) if entities else None
             entity_text = entity.text if entity else 'that' # generic place holder in case we can't identify any entities
-            self.speak_dialog(key='Response_Followup',
-                        data={
-                            "resident_name": self.resident_name,
-                            "entity_text": entity_text
-                        })
-            self.add_media_interaction(elapsed_seconds=0, event="Resident response", data=user_response)                        
+
+            if sentiment and sentiment.negative > 0.8:
+                self.speak_dialog(key='Response_Followup_Negative',
+                            data={
+                                "resident_name": self.resident_name,
+                                "entity_text": entity_text
+                            })
+            elif sentiment and sentiment.positive > 0.8:
+                self.speak_dialog(key='Response_Followup_Positive',
+                            data={
+                                "resident_name": self.resident_name,
+                                "entity_text": entity_text
+                            })
+            else:
+                self.speak_dialog(key='Response_Followup',
+                            data={
+                                "resident_name": self.resident_name,
+                                "entity_text": entity_text
+                            })
+
+            self.add_media_interaction(elapsed_seconds=0, event="Resident response", data=user_response, analysis=sentiment)                        
             wait_while_speaking()
         else:
             self.add_media_interaction(elapsed_seconds=0, event="Resident response", data="None")
@@ -390,14 +410,15 @@ class JoiPhotoSkill(MycroftSkill):
                             resident_self_reported_feeling="NA")
             self.session_media = None                        
 
-    def add_media_interaction(self, elapsed_seconds, event, data):
+    def add_media_interaction(self, elapsed_seconds, event, data, analysis=None):
         if hasattr(self, 'session_media') and self.session_media:
             media_interaction = self.joi_client.add_MediaInteraction(
                             memorybox_session_media_id=self.session_media.memorybox_session_media_id, 
                             elapsed_seconds=elapsed_seconds,
                             media_percent_completed=0,
                             event=event,
-                            data=data)
+                            data=data,
+                            analysis=analysis)
 
     def stop_memorybox_session(self, end_method):
         self.end_memorybox_session_media()
