@@ -109,25 +109,36 @@ class JoiPhotoSkill(MycroftSkill):
 
     def activate_smarthome_scene(self):
         self.log.info("activate_smarthome_scene")
-        self.bus.emit(Message("recognizer_loop:utterance",  
-                                {'utterances': ["turn on light strip"],  
-                                'lang': 'en-us'}))  
+        self.bus.emit(Message("skill.homeassistant.turn_action",  
+                                data={
+                                    "Entity": "light strip",  
+                                    "Action" : "on"}))  
 
     def deactivate_smarthome_scene(self):
         self.log.info("deactivate_smarthome_scene")
-        self.bus.emit(Message("recognizer_loop:utterance",  
-                                {'utterances': ["turn off light strip"],  
-                                'lang': 'en-us'}))  
+        self.bus.emit(Message("skill.homeassistant.turn_action",  
+                                data={
+                                    "Entity": "light strip",  
+                                    "Action" : "off"}))  
 
     ################################
 
     def open_browser(self):
         joi_server_url = get_setting("joi_server_url")
         url = f"{joi_server_url}/joi/slideshow?id={self.slideshow.slideshow_id}"
-        webbrowser.open(url=url, autoraise=True)
+
+        retry_count = 0
+        success = False
+        while not success and retry_count < 3:
+            success = webbrowser.open(url=url, autoraise=True)
+            sleep(1)
+            retry_count += 1
 
     def close_browser(self):
-        os.system("killall chromium-browser")
+        try:
+            os.system("killall chromium-browser")
+        except:
+            self.log.warn("Error closing web browser")
 
     def session_end(self):
         self.log.info("session_end")

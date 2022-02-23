@@ -12,7 +12,8 @@ All of these Mycroft Skills Manager (mycroft-msm) commands are executed on the R
     ./mycroft-msm remove joi-skill-photo
 
 ### Bash Script to automate updating of skills
-In home director create file called update-skills.sh
+In home directory create file called update-skills.sh
+
     #!/bin/bash
 
     echo "----Updating joi-skill-utils----"
@@ -22,11 +23,16 @@ In home director create file called update-skills.sh
 
     cd ~/mycroft-core/bin
 
+    echo "----Uninstalling skill-homeassistant----"
+    ./mycroft-msm remove skill-homeassistant
+    ./mycroft-msm remove skill-homeassistant.tyseddon
     echo "----Uninstalling joi-skill-music----"
     ./mycroft-msm remove joi-skill-music.tyseddon
     echo "----Uninstalling joi-skill-photo----"
     ./mycroft-msm remove joi-skill-photo.tyseddon
 
+    echo "----Installing skill-homeassistant----"
+    ./mycroft-msm install https://github.com/TySeddon/skill-homeassistant.git
     echo "----Installing joi-skill-music----"
     ./mycroft-msm install https://github.com/TySeddon/joi-skill-music.git
     echo "----Installing joi-skill-photo----"
@@ -47,6 +53,11 @@ Make script executable and writeable
     cd ~/mycroft-core        
     source venv-activate.sh  
     pip install git+https://github.com/TySeddon/joi-skill-utils    
+    pip install fuzzywuzzy==0.14.0
+    pip install requests
+    pip install quantulum3
+    pip install responses<=0.10.15
+    pip install ipaddress    
 
     sudo nano client_secret.json
         get content for this file from https://console.developers.google.com/
