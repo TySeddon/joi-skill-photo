@@ -231,7 +231,7 @@ class JoiPhotoSkill(MycroftSkill):
                 self.stop()
                 return
 
-            sentiment = self.nlp.get_sentiment([user_response])
+            sentiment = self.nlp.get_sentiment(user_response)
             self.log.info(f"positive:{sentiment.positive}, neutral:{sentiment.neutral}, negative:{sentiment.negative}")
             self.sentiments.append(sentiment)
 
