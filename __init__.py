@@ -1,3 +1,4 @@
+import re
 import os
 import random
 import webbrowser
@@ -95,7 +96,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info(f"album_id = {album_id}")
         photos = self.google_photo.get_media_items(album_id)
         # create a random set of photos for this session
-        self.session_photos = self.suffle_photos(photos)
+        self.session_photos = self.arrange_photos(photos, 10)
 
         # launch photo player
         self.open_browser()
@@ -171,8 +172,36 @@ class JoiPhotoSkill(MycroftSkill):
 
     ###########################################
 
-    def suffle_photos(self, photos):
-         return random.sample(photos,10)
+    def _build_pyramid(self, sorted_list):
+        """Take a sorted list and arrange it so the highest is in the middle
+        This results in a ramp-up and ramp-down
+        """
+        even = sorted_list[::2]
+        odd = sorted_list[1::2]
+        even.extend(reversed(odd))
+        return even
+
+    def arrange_photos(self, photos, n):
+        #return random.sample(photos,10)
+
+        # get the stars (asterisks) in description
+        # looking for *, **, ***, ****, etc
+        for photo in photos:
+            stars = re.findall(r'[\*]+',photo.description)
+            photo.stars = len(stars[0]) if stars else 0
+
+        sorted_photos = sorted(photos,key=lambda o: o.stars)
+        # split list low and high rating
+        # choose a few slow and fast songs
+        low_photos = random.sample(sorted_photos[:len(sorted_photos)//2],n//2)
+        high_photos = random.sample(sorted_photos[len(sorted_photos)//2:],n//2)
+        sorted_photos_subset = sorted(low_photos + high_photos, key=lambda o: o.stars)
+
+        # arrange in a ramp-up, ramp-down pyramid
+        result = self._build_pyramid(sorted_photos_subset)
+        for photo in result:
+            self.log.info(f"{photo.stars}")
+        return result
 
     def get_next_photo(self):
         if len(self.session_photos) > 0:
