@@ -40,6 +40,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.add_event("recognizer_loop:record_begin", self.handle_listener_started)
         self.add_event("skill.joi-skill-photo.stop", self.stop)
         self.add_event("skill.joi-skill-photo.start", self.handle_play_photo_intent)
+        self.open_browser_home()
 
     ###########################################
 
