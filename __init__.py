@@ -250,7 +250,8 @@ class JoiPhotoSkill(MycroftSkill):
             self.sentiments.append(sentiment)
 
             # if this sentiment is negative and the last sentimend was negative
-            if self.is_latest_sentiment_negative() and last_sentiment_was_negative:
+            # disabling this.  This will take a while to test
+            if False and self.is_latest_sentiment_negative() and last_sentiment_was_negative:
                 self.speak("Let's listen to some music instead.")
                 wait_while_speaking()
                 # stop showing photos and switch over to music
