@@ -39,7 +39,7 @@ class JoiPhotoSkill(MycroftSkill):
         #self.add_event("mycroft.stop", self.stop)
         self.add_event("recognizer_loop:record_begin", self.handle_listener_started)
         self.add_event("skill.joi-skill-photo.stop", self.stop)
-        self.add_event("skill.joi-skill-photo.start", self.start)
+        self.add_event("skill.joi-skill-photo.start", self.handle_play_photo_intent)
 
     ###########################################
 
@@ -254,8 +254,8 @@ class JoiPhotoSkill(MycroftSkill):
                 self.speak("Let's listen to some music instead.")
                 wait_while_speaking()
                 # stop showing photos and switch over to music
-                self.bus.emit(Message("skill.joi-skill-music.start"))
                 self.stop()
+                self.bus.emit(Message("skill.joi-skill-music.start"))
                 return
 
             entities = self.nlp.recognize_entities([user_response])
