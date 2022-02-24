@@ -181,12 +181,18 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("photo_followup")
         if self.stopped: return 
 
-        if self.sentiments and self.sentiments[-1] and self.sentiments[-1].negative > 0.8: 
+        if self.is_last_sentiment_negative(): 
             self.speak_dialog(key="Photo_Followup_Negative",
                           data={"resident_name": self.resident_name})
         else:
             self.speak_dialog(key="Photo_Followup",
                           data={"resident_name": self.resident_name})
+
+    def is_last_sentiment_negative(self):
+        if self.sentiments and self.sentiments[-1] and self.sentiments[-1].negative > 0.8:
+            return True
+        else
+            return False
 
     ###########################################
 
@@ -295,7 +301,7 @@ class JoiPhotoSkill(MycroftSkill):
             return False
 
     def is_photo_done(self):
-        if self.play_state.tick_count >= 3:
+        if self.is_last_sentiment_negative() or self.play_state.tick_count >= 3:
             return True
         else:
             return False
