@@ -494,7 +494,7 @@ class JoiPhotoSkill(MycroftSkill):
         
         self.stop_monitor()
         self.stop_idle_check()
-        self.close_browser()
+        #self.close_browser()
         #self.open_browser_home()
         self.stop_memorybox_session("stop")
         return True
