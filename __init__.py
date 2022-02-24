@@ -102,7 +102,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.session_photos = self.arrange_photos(photos, 10)
 
         # launch photo player
-        self.open_browser()
+        self.open_browser_music()
 
         wait_while_speaking()
 
@@ -126,9 +126,20 @@ class JoiPhotoSkill(MycroftSkill):
 
     ################################
 
-    def open_browser(self):
+    def open_browser_music(self):
         joi_server_url = get_setting("joi_server_url")
         url = f"{joi_server_url}/joi/slideshow?id={self.slideshow.slideshow_id}"
+
+        retry_count = 0
+        success = False
+        while not success and retry_count < 3:
+            success = webbrowser.open(url=url, autoraise=True)
+            sleep(1)
+            retry_count += 1
+
+    def open_browser_home(self):
+        joi_server_url = get_setting("joi_server_url")
+        url = f"{joi_server_url}/joi/joi_home"
 
         retry_count = 0
         success = False
@@ -152,6 +163,7 @@ class JoiPhotoSkill(MycroftSkill):
         sleep(5)
         self.slideshow.end_slideshow()
         self.close_browser()
+        self.open_browser_home()
 
     def photo_intro(self, photo):
         self.log.info("photo_intro")
@@ -482,6 +494,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.stop_monitor()
         self.stop_idle_check()
         self.close_browser()
+        self.open_browser_home()
         self.stop_memorybox_session("stop")
         return True
 
