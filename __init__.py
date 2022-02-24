@@ -39,6 +39,7 @@ class JoiPhotoSkill(MycroftSkill):
         #self.add_event("mycroft.stop", self.stop)
         self.add_event("recognizer_loop:record_begin", self.handle_listener_started)
         self.add_event("skill.joi-skill-photo.stop", self.stop)
+        self.add_event("skill.joi-skill-photo.start", self.start)
 
     ###########################################
 
@@ -49,13 +50,13 @@ class JoiPhotoSkill(MycroftSkill):
         self.start(start_method=f"User said: {message.data['utterance']}")
 
     def start(self, start_method):
-        """ This is an Adapt intent handler, it is triggered by a keyword."""
         self.log.info("start")
         self.stopped = False
+        if not start_method:
+            start_method = "bus.event"
 
         # stop the music player (in case it is running)
         self.bus.emit(Message("skill.joi-skill-music.stop"))
-
 
         # establish connection to Joi server
         joi_device_id = get_setting("device_id")
@@ -181,17 +182,17 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("photo_followup")
         if self.stopped: return 
 
-        if self.is_last_sentiment_negative(): 
+        if self.is_latest_sentiment_negative(): 
             self.speak_dialog(key="Photo_Followup_Negative",
                           data={"resident_name": self.resident_name})
         else:
             self.speak_dialog(key="Photo_Followup",
                           data={"resident_name": self.resident_name})
 
-    def is_last_sentiment_negative(self):
-        if self.sentiments and self.sentiments[-1] and self.sentiments[-1].negative > 0.8:
+    def is_latest_sentiment_negative(self):
+        if self.sentiments and self.sentiments[-1:] and self.sentiments[-1].negative > 0.8:
             return True
-        else
+        else:
             return False
 
     ###########################################
@@ -242,10 +243,20 @@ class JoiPhotoSkill(MycroftSkill):
                 self.stop()
                 return
 
+            last_sentiment_was_negative = self.is_latest_sentiment_negative()
             sentiment_response = self.nlp.get_sentiment(user_response)
             sentiment = sentiment_response.sentiment
             self.log.info(f"positive:{sentiment.positive}, neutral:{sentiment.neutral}, negative:{sentiment.negative}")
             self.sentiments.append(sentiment)
+
+            # if this sentiment is negative and the last sentimend was negative
+            if self.is_latest_sentiment_negative() and last_sentiment_was_negative:
+                self.speak("Let's listen to some music instead.")
+                wait_while_speaking()
+                # stop showing photos and switch over to music
+                self.bus.emit(Message("skill.joi-skill-music.start"))
+                self.stop()
+                return
 
             entities = self.nlp.recognize_entities([user_response])
             for e in entities:
@@ -301,7 +312,7 @@ class JoiPhotoSkill(MycroftSkill):
             return False
 
     def is_photo_done(self):
-        if self.is_last_sentiment_negative() or self.play_state.tick_count >= 3:
+        if self.is_latest_sentiment_negative() or self.play_state.tick_count >= 3:
             return True
         else:
             return False
