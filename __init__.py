@@ -190,7 +190,7 @@ class JoiPhotoSkill(MycroftSkill):
                           data={"resident_name": self.resident_name})
 
     def is_latest_sentiment_negative(self):
-        if self.sentiments and self.sentiments[-1:] and self.sentiments[-1].negative > 0.8:
+        if self.sentiments and self.sentiments[-1] and self.sentiments[-1].negative > 0.8:
             return True
         else:
             return False
