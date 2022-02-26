@@ -166,7 +166,9 @@ class JoiPhotoSkill(MycroftSkill):
         sleep(5)
         self.slideshow.end_slideshow()
         self.close_browser()
-        #self.open_browser_home()
+        sleep(3)
+        self.bus.emit(Message("skill.joi-skill-mainmenu.show"))
+
 
     def photo_intro(self, photo):
         self.log.info("photo_intro")
@@ -496,8 +498,9 @@ class JoiPhotoSkill(MycroftSkill):
         
         self.stop_monitor()
         self.stop_idle_check()
-        #self.close_browser()
-        #self.open_browser_home()
+        self.close_browser()
+        sleep(3)
+        self.bus.emit(Message("skill.joi-skill-mainmenu.show"))
         self.stop_memorybox_session("stop")
         return True
 
