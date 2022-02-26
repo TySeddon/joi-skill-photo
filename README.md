@@ -85,6 +85,10 @@ Make script executable and writeable
     pip install adapt-parser
     pip install git+https://github.com/TySeddon/joi-skill-utils
 
+## Mycroft 
+NOTE: It is recommended that you install the Mycroft package into your virtual environment.  However, this package does not exist on your computer, unless you have mycroft installed.  On Windows, this is not possible.  The simplest workaround is to clone the git hub repository to somewhere on your computer's harddrive, then copy the "mycroft" folder to .venv/Lib/site-packages.
+Repo is here: https://github.com/MycroftAI/mycroft-core
+
 ## Update requirements.txt
     pip freeze > requirements.txt
 
