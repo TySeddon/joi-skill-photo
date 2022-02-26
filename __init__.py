@@ -50,7 +50,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info("handle_play_photo_intent")
         self.start(start_method=f"User said: {message.data['utterance']}")
 
-    def start(self, start_method="Auto"):
+    def start(self, start_method):
         self.log.info("start")
         self.stopped = False
         if not start_method:
@@ -84,6 +84,8 @@ class JoiPhotoSkill(MycroftSkill):
         self.log.info(f"Selected memory box '{photo_memorybox.name}'")
 
         # start the session
+        if type(start_method).__name__ == "Message":
+            start_method = "Auto"
         self.start_memorybox_session(photo_memorybox, start_method)
 
         # login to Google Photo
