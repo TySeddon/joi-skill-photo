@@ -40,7 +40,6 @@ class JoiPhotoSkill(MycroftSkill):
         self.add_event("recognizer_loop:record_begin", self.handle_listener_started)
         self.add_event("skill.joi-skill-photo.stop", self.stop)
         self.add_event("skill.joi-skill-photo.start", self.start)
-        #self.open_browser_home()
 
     ###########################################
 
@@ -105,7 +104,7 @@ class JoiPhotoSkill(MycroftSkill):
         self.session_photos = self.arrange_photos(photos, 10)
 
         # launch photo player
-        self.open_browser_music()
+        self.open_browser()
 
         wait_while_speaking()
 
@@ -129,25 +128,14 @@ class JoiPhotoSkill(MycroftSkill):
 
     ################################
 
-    def open_browser_music(self):
+    def open_browser(self):
         joi_server_url = get_setting("joi_server_url")
         url = f"{joi_server_url}/joi/slideshow?id={self.slideshow.slideshow_id}"
 
         retry_count = 0
         success = False
         while not success and retry_count < 3:
-            success = webbrowser.open(url=url, autoraise=True)
-            sleep(1)
-            retry_count += 1
-
-    def open_browser_home(self):
-        joi_server_url = get_setting("joi_server_url")
-        url = f"{joi_server_url}/joi/joi_home"
-
-        retry_count = 0
-        success = False
-        while not success and retry_count < 3:
-            success = webbrowser.open(url=url, autoraise=True)
+            success = webbrowser.open(url=url, new=0, autoraise=True)
             sleep(1)
             retry_count += 1
 
@@ -165,8 +153,8 @@ class JoiPhotoSkill(MycroftSkill):
         self.deactivate_smarthome_scene()                          
         sleep(5)
         self.slideshow.end_slideshow()
-        self.close_browser()
-        sleep(3)
+        #self.close_browser()
+        #sleep(3)
         self.bus.emit(Message("skill.joi-skill-mainmenu.show"))
 
 
@@ -498,8 +486,8 @@ class JoiPhotoSkill(MycroftSkill):
         
         self.stop_monitor()
         self.stop_idle_check()
-        self.close_browser()
-        sleep(3)
+        #self.close_browser()
+        #sleep(3)
         self.bus.emit(Message("skill.joi-skill-mainmenu.show"))
         self.stop_memorybox_session("stop")
         return True
