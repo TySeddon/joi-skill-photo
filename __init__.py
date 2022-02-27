@@ -475,6 +475,8 @@ class JoiPhotoSkill(MycroftSkill):
         or an expired alarm notification.
         """
         self.log.info("mycroft.stop")
+        if self.stopped: return
+        
         self.stopped = True
         if self.slideshow:
             self.slideshow.end_slideshow()
