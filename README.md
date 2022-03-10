@@ -100,7 +100,7 @@ Create your virtual environment, then load all the required dependencies with:
 1. Login to https://console.developers.google.com/
 2. Click OAuth Consent Screen
     a. Choose External, Click Create
-    b. App name = "Joi Photo Skill"
+    b. App name = "Minka Joi Photo"
     b. User support email = <any email you want>
     c. Developer contact = <any email you want>
     d. Click "Save and Continue"
