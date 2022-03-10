@@ -131,6 +131,7 @@ dmypy.json
 # Google Security Files
 token.pickle
 client_secret.json
+token.json
 
 # environment (dev vs production) config
 *.yaml
